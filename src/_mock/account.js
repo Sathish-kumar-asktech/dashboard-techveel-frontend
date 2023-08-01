@@ -1,9 +1,9 @@
 // ----------------------------------------------------------------------
 
 const account = {
-  displayName: 'TECHVEEL_ADMIN',
-  email: 'demo@minimals.cc',
-  photoURL: '/assets/images/avatars/avatar_default.jpg',
+  displayName: 'Admin',
+  email: 'sathish.asktech@gmail.com',
+  photoURL: '/assets/images/avatars/avatar_11.jpg',
 };
 
 export default account;

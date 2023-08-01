@@ -81,7 +81,7 @@ const palette = {
   grey: GREY,
   divider: alpha(GREY[500], 0.24),
   text: {
-    primary: GREY[800],
+    primary: GREY[900],
     secondary: GREY[600],
     disabled: GREY[500],
   },
@@ -91,7 +91,7 @@ const palette = {
     neutral: GREY[200],
   },
   action: {
-    active: GREY[600],
+    active: GREY[700],
     hover: alpha(GREY[500], 0.08),
     selected: alpha(GREY[500], 0.16),
     disabled: alpha(GREY[500], 0.8),

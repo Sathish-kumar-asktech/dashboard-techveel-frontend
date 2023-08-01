@@ -151,11 +151,6 @@ const EducationStream = () => {
           }
           console.log(res.data);
         });
-      // getDegrees();
-      // setOpenDelete(false);
-      // setAlertType('warning');
-      // setAlertMessage('Degree Deleted Successfully!');
-      // setopenAlert(true);
     } catch (error) {
       console.error('Error deleting degree:', error);
       setAlertType('error');
@@ -214,20 +209,24 @@ const EducationStream = () => {
     let helperText = '';
 
     const degreeRegex = /^[A-Za-z\s]+$/;
-    const isDegreeExists = degreeData.some((degree) => degree.DegreeName.toLowerCase() === value.toLowerCase().trim());
+    const editedName = value.toLowerCase().trim();
+    const isDegreeExists = degreeData.some((degree) => degree.DegreeName.toLowerCase() === editedName);
+    const isEditExists = degreeData.some((degree) => degree.DegreeName.toLowerCase() === editedName &&  degree.DegreeId !== editID
+    );
 
+    
     if (name === 'degree') {
       if (!value.trim()) {
         error = true;
         helperText = 'Degree field cannot be empty';
         setIsFormSubmitted(false);
       }
-      // else if (!degreeRegex.test(value)) {
-      //   error = true;
-      //   helperText = 'Please enter a valid degree';
-      //   setIsFormSubmitted(false);
-      // }
-      else if (isDegreeExists) {
+      else if ( operation === 'Add' && isDegreeExists) {
+        error = true;
+        helperText = 'Degree already exists. Please enter a different degree name.';
+        setIsFormSubmitted(false);
+      }
+      else if ( operation === 'Edit' && isEditExists) {
         error = true;
         helperText = 'Degree already exists. Please enter a different degree name.';
         setIsFormSubmitted(false);

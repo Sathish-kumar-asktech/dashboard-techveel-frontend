@@ -247,7 +247,15 @@ const City = () => {
     let helperText = '';
 
     const locationRegex = /^[A-Za-z\s]+$/;
-    const isDataExists = cityData.some((city) => city.CityName.toLowerCase() === value.toLowerCase().trim());
+    const editedName = value.toLowerCase().trim();
+
+    // const isDataExists = stateData.some((city) => city.CityName.toLowerCase() === value.toLowerCase().trim());
+
+    const isDataExistsinEDIt = cityData.some(
+      (city) => city.CityName.toLowerCase() === editedName && city.CityId !== editID
+    );
+
+    const isDataExists = cityData.some((city) => city.CityName.toLowerCase() === editedName);
 
     if (name === 'city') {
       if (!value.trim()) {
@@ -260,11 +268,17 @@ const City = () => {
         error = true;
         helperText = 'Please enter a valid city';
         setIsFormSubmitted(false);
-      } else if (isDataExists) {
+      } else if (operation === 'Add' && isDataExists) {
         error = true;
         helperText = 'City already exists';
         setIsFormSubmitted(false);
-      } else {
+      }else if (operation === 'Edit' && isDataExistsinEDIt ) {
+        error = true;
+        helperText = 'City already exists';
+        setIsFormSubmitted(false);
+      }
+       
+      else {
         setIsFormSubmitted(true); // Add this line when there are no errors for the city field
       }
     }

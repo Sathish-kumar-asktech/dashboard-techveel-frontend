@@ -29,6 +29,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import styled from '@emotion/styled';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import AddLocationAltRoundedIcon from '@mui/icons-material/AddLocationAltRounded';
 import axios from '../../axios';
 import './animation.css';
@@ -314,22 +315,6 @@ const CoursesMaster = () => {
       setHelperTexts((prevHelperTexts) => ({ ...prevHelperTexts, courseCategory: '' }));
     }
   };
-
-  // const handleInputChangeDuration = (event, newValue) => {
-  //   setSelectedDuration(newValue);
-  //   console.log('course duration selected', newValue);
-  //   if (!newValue) {
-  //     setErrors((prevErrors) => ({ ...prevErrors, duration: true }));
-  //     setHelperTexts((prevHelperTexts) => ({
-  //       ...prevHelperTexts,
-  //       duration: 'Please select a course duration',
-  //     }));
-  //   } else {
-  //     setErrors((prevErrors) => ({ ...prevErrors, duration: false }));
-  //     setHelperTexts((prevHelperTexts) => ({ ...prevHelperTexts, duration: '' }));
-  //   }
-  // };
-
   // validations
 
   const validateInput = (name, value) => {
@@ -338,6 +323,9 @@ const CoursesMaster = () => {
 
     const courseNameRegex = /^[A-Za-z\s]+$/;
     const isDataExists = courseData.some((course) => course.Course_Name.toLowerCase() === value.toLowerCase().trim());
+    const isDataExistsinEdit = courseData.some(
+      (course) => course.Course_Name.toLowerCase() === value.toLowerCase().trim() && course.CourseId !== editID
+    );
 
     if (name === 'course') {
       if (!value.trim()) {
@@ -345,7 +333,11 @@ const CoursesMaster = () => {
         error = true;
         helperText = 'Course field cannot be empty';
         setIsFormSubmitted(false);
-      } else if (isDataExists) {
+      } else if (operation === 'Add' && isDataExists) {
+        error = true;
+        helperText = 'Course already exists';
+        setIsFormSubmitted(false);
+      } else if (operation === 'Edit' && isDataExistsinEdit) {
         error = true;
         helperText = 'Course already exists';
         setIsFormSubmitted(false);
@@ -362,22 +354,6 @@ const CoursesMaster = () => {
         setIsFormSubmitted(true); // Add this line when there are no errors
       }
     }
-
-    // if (name === 'course') {
-    //   if (!value.trim()) {
-    //     error = true;
-    //     helperText = 'Course field cannot be empty';
-    //     setIsFormSubmitted(false);
-    //   }
-    //   // else if (!courseNameRegex.test(value)) {
-    //   //   error = true;
-    //   //   helperText = 'Please enter a valid course name';
-    //   //   setIsFormSubmitted(false);
-    //   // }
-    //   else {
-    //     setIsFormSubmitted(true);
-    //   }
-    // }
 
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -512,7 +488,7 @@ const CoursesMaster = () => {
             color="secondary"
             sx={{ boxShadow: 1 }}
             onClick={handleAddOpen}
-            startIcon={<AddLocationAltRoundedIcon />}
+            startIcon={<PlaylistAddIcon />}
           >
             Add Course
           </Button>

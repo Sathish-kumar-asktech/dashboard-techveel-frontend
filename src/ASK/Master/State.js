@@ -204,7 +204,14 @@ const State = () => {
     let helperText = '';
 
     const locationRegex = /^[A-Za-z\s]+$/;
+    const editedStateName = value.toLowerCase().trim();
+
     const isStateExists = stateData.some((state) => state.StateName.toLowerCase() === value.toLowerCase().trim());
+
+    const isStateExistsinEDIt = stateData.some(
+      (state) => state.StateName.toLowerCase() === editedStateName && state.StateId !== editID
+    );
+
     if (name === 'state') {
       if (!value.trim()) {
         // If the field is empty, show a different message
@@ -216,7 +223,12 @@ const State = () => {
         error = true;
         helperText = 'Please enter a valid state';
         setIsFormSubmitted(false);
-      } else if (isStateExists) {
+      } else if (operation === 'Add' && isStateExists) {
+        error = true;
+        helperText = 'State already exists. Please enter a different state name.';
+        setIsFormSubmitted(false);
+      }
+      else if (operation === 'Edit' && isStateExistsinEDIt) {
         error = true;
         helperText = 'State already exists. Please enter a different state name.';
         setIsFormSubmitted(false);

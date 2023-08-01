@@ -29,6 +29,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import styled from '@emotion/styled';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import SchoolIcon from '@mui/icons-material/School';
 import AddLocationAltRoundedIcon from '@mui/icons-material/AddLocationAltRounded';
 import axios from '../../axios';
 import './animation.css';
@@ -317,14 +318,6 @@ const College = () => {
     }
     // Reset the selected city whenever the state changes
     setSelectedCity(null);
-    // if (!newValue) {
-    //   // Check if the newValue is null or undefined
-    //   setErrors((prevErrors) => ({ ...prevErrors, state: true }));
-    //   setHelperTexts((prevHelperTexts) => ({ ...prevHelperTexts, state: 'Please select a state' }));
-    // } else {
-    //   setErrors((prevErrors) => ({ ...prevErrors, state: false }));
-    //   setHelperTexts((prevHelperTexts) => ({ ...prevHelperTexts, state: '' }));
-    // }
   };
 
   const handleInputChangeCity = (event, newValue) => {
@@ -344,9 +337,12 @@ const College = () => {
     let error = false;
     let helperText = '';
 
-    const collegeNameRegex = /^[A-Za-z0-9\s.,'"&()/-]+$/;
-    const isDataExists = collegeData.some(
-      (college) => college.CollegeName.toLowerCase() === value.toLowerCase().trim()
+    const editedName = value.toLowerCase().trim();
+
+    const isDataExists = collegeData.some((college) => college.CollegeName.toLowerCase() === editedName);
+
+    const isExistsinEDIt = collegeData.some(
+      (college) => college.CollegeName.toLowerCase() === editedName && college.CollegeId !== editID
     );
 
     if (name === 'college') {
@@ -355,12 +351,12 @@ const College = () => {
         error = true;
         helperText = 'College field cannot be empty';
         setIsFormSubmitted(false);
-      } else if (!collegeNameRegex.test(value)) {
-        // If the field has a value but doesn't match the regex
+      } else if (operation === 'Add' && isDataExists) {
         error = true;
-        helperText = 'Please enter a valid College Name';
+        helperText = 'College already exists';
         setIsFormSubmitted(false);
-      } else if (isDataExists) {
+      }
+      if (operation === 'Edit' && isExistsinEDIt) {
         error = true;
         helperText = 'College already exists';
         setIsFormSubmitted(false);
@@ -490,7 +486,7 @@ const College = () => {
             color="secondary"
             sx={{ boxShadow: 1 }}
             onClick={handleAddOpen}
-            startIcon={<AddLocationAltRoundedIcon />}
+            startIcon={<SchoolIcon />}
           >
             Add College
           </Button>

@@ -188,14 +188,23 @@ const TermsConditions = () => {
     let error = false;
     let helperText = '';
 
-    const isTcExists = termsConditionsData.some((tc) => tc.TermsConditions.toLowerCase() === value.toLowerCase().trim());
+    const isTcExists = termsConditionsData.some(
+      (tc) => tc.TermsConditions.toLowerCase() === value.toLowerCase().trim()
+    );
+    const isTcExistsinEdit =
+      termsConditionsData.some((tc) => tc.TermsConditions.toLowerCase() === value.toLowerCase().trim() && tc.TCId !== editTcId);
 
     if (name === 'termsConditions') {
       if (!value.trim()) {
         error = true;
         helperText = 'Terms & Conditions field cannot be empty';
         setIsFormSubmitted(false);
-      } else if (isTcExists) {
+      } else if (operation === 'Add' && isTcExists) {
+        error = true;
+        helperText = 'Terms & Conditions already exists. Please enter a different text.';
+        setIsFormSubmitted(false);
+      }
+      if (operation === 'Edit' && isTcExistsinEdit) {
         error = true;
         helperText = 'Terms & Conditions already exists. Please enter a different text.';
         setIsFormSubmitted(false);
@@ -421,23 +430,23 @@ const TermsConditions = () => {
         </Dialog>
 
         <Dialog
-        open={openDelete}
-        onClose={handleCloseDelete}
-        aria-labelledby="responsive-dialog-title"
-        fullScreen={fullScreen}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle id="responsive-dialog-title">Are you sure you want to delete?</DialogTitle>
-        <DialogActions>
-          <Button variant="contained" autoFocus onClick={handleCloseDelete} color="primary">
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={() => handleDeleteConfirmed(tcIdToDelete)} color="error" autoFocus>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+          open={openDelete}
+          onClose={handleCloseDelete}
+          aria-labelledby="responsive-dialog-title"
+          fullScreen={fullScreen}
+          fullWidth
+          maxWidth="xs"
+        >
+          <DialogTitle id="responsive-dialog-title">Are you sure you want to delete?</DialogTitle>
+          <DialogActions>
+            <Button variant="contained" autoFocus onClick={handleCloseDelete} color="primary">
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={() => handleDeleteConfirmed(tcIdToDelete)} color="error" autoFocus>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Grid>
     </>
   );

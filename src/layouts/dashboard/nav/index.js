@@ -38,7 +38,7 @@ import ManageList from './manageList';
 
 // ----------------------------------------------------------------------
 
-const NAV_WIDTH = 300;
+const NAV_WIDTH = 250;
 
 const StyledAccount = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -74,12 +74,13 @@ export default function Nav({ openNav, onCloseNav }) {
         '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
       }}
     >
-      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
+      {/* <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
         <Logo />
-      </Box>
+      </Box> */}
 
-      <Box sx={{ mb: 5, mx: 2.5 }}>
+      <Box sx={{ mb: 5, m: 2.5 }}>
         <Link underline="none">
+
           <StyledAccount>
             <Avatar src={account.photoURL} alt="photoURL" />
 
@@ -104,7 +105,7 @@ export default function Nav({ openNav, onCloseNav }) {
           sx={{ borderTop: 'none' }}
         > <Typography
             sx={{
-              color:"grey",
+              color:"#161C24",
               '&.active': {
                 color: 'text.primary',
                 bgcolor: 'action.selected',
@@ -130,7 +131,7 @@ export default function Nav({ openNav, onCloseNav }) {
           sx={{ borderTop: 'none' }}
         > <Typography
             sx={{
-              color:"grey",
+              color:"#161C24",
               '&.active': {
                 color: 'text.primary',
                 bgcolor: 'action.selected',
@@ -156,7 +157,7 @@ export default function Nav({ openNav, onCloseNav }) {
           sx={{ borderTop: 'none' }}
         > <Typography
             sx={{
-              color:"grey",
+              color:"#161C24",
               '&.active': {
                 color: 'text.primary',
                 bgcolor: 'action.selected',
@@ -182,7 +183,7 @@ export default function Nav({ openNav, onCloseNav }) {
           sx={{ borderTop: 'none' }}
         > <Typography
             sx={{
-              color:"grey",
+              color:"#161C24",
               '&.active': {
                 color: 'text.primary',
                 bgcolor: 'action.selected',

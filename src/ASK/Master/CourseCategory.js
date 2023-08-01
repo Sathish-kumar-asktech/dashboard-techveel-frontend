@@ -27,6 +27,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import styled from '@emotion/styled';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import QueueIcon from '@mui/icons-material/Queue';
 import AddLocationAltRoundedIcon from '@mui/icons-material/AddLocationAltRounded';
 import axios from '../../axios';
 import './animation.css';
@@ -198,20 +199,21 @@ const CourseCategoryMaster = () => {
     const isCategoryExists = categoryData.some(
       (category) => category.Course_Category.toLowerCase() === value.toLowerCase().trim()
     );
+    const isCategoryExistsinEdit = categoryData.some(
+      (category) =>
+        category.Course_Category.toLowerCase() === value.toLowerCase().trim() && category.CourseCategoryId !== editID
+    );
     if (name === 'category') {
       if (!value.trim()) {
         // If the field is empty, show a different message
         error = true;
         helperText = 'Category field cannot be empty';
         setIsFormSubmitted(false);
-      }
-      //  else if (!categoryRegex.test(value)) {
-      //   // If the field has a value but doesn't match the regex
-      //   error = true;
-      //   helperText = 'Please enter a valid category';
-      //   setIsFormSubmitted(false);
-      // }
-      else if (isCategoryExists) {
+      } else if (operation === 'Add' && isCategoryExists) {
+        error = true;
+        helperText = 'Category already exists. Please enter a different category name.';
+        setIsFormSubmitted(false);
+      } else if (operation === 'Edit' && isCategoryExistsinEdit) {
         error = true;
         helperText = 'Category already exists. Please enter a different category name.';
         setIsFormSubmitted(false);
@@ -332,7 +334,7 @@ const CourseCategoryMaster = () => {
             color="secondary"
             sx={{ boxShadow: 1 }}
             onClick={handleAddOpen}
-            startIcon={<AddLocationAltRoundedIcon />}
+            startIcon={<QueueIcon />}
           >
             Add Course Category
           </Button>

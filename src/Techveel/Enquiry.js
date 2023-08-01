@@ -232,7 +232,7 @@ export default function Enquiry() {
           </Typography>
 
           <Box sx={{ width: '100%' }}>
-            <Stepper activeStep={activeStep} orientation={orientation}>
+            <Stepper nonLinear activeStep={activeStep} orientation={orientation}>
               {steps.map((label, index) => {
                 const stepProps = {};
                 const labelProps = {};
