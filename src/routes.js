@@ -11,11 +11,9 @@ import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import City from './ASK/Master/City';
 import State from './ASK/Master/State';
-import College from './ASK/Master/College';
-// import Courses from './ASK/Master/Courses';
+import College from './ASK/Master/College';;
 import Enquiry from './Techveel/Enquiry';
 import Admission from './Techveel/Admission';
-import ManageEnquiry from './Techveel/ManageEnquiry';
 import ManageAdmission from './Techveel/ManageAdmission';
 import PaymentUpdateForm from './Techveel/PaymentUpdateForm';
 import ManagePayment from './Techveel/ManagePayment';
@@ -23,6 +21,7 @@ import TermsConditions from './ASK/Master/TermsConditions';
 import EducationStream from './ASK/Master/EducationStream';
 import CourseCategoryMaster from './ASK/Master/CourseCategory';
 import CoursesMaster from './ASK/Master/Courses';
+import ManageEnquiriesTable from './Techveel/ManageEnquiries';
 
 // ----------------------------------------------------------------------
 
@@ -44,10 +43,11 @@ export default function Router() {
         { path: 'coursescategory', element: <CourseCategoryMaster /> },    
         { path: 'courses', element: <CoursesMaster /> },                 
         { path: 'terms&conditions', element: <TermsConditions /> },                         
-        { path: 'enquiry', element: <Enquiry /> },
+        { path: 'enquiry', element: <Enquiry /> },                                
+        { path: 'enquiry/:id', element: <Enquiry /> },
         { path: 'admission', element: <Admission /> },
-        { path: 'manage_enquiry', element: <ManageEnquiry /> },        
-        { path: 'manage_students', element: <ManageEnquiry /> },               
+        { path: 'manage_enquiry', element: <ManageEnquiriesTable /> },        
+        { path: 'manage_students', element: <ManageEnquiriesTable /> },               
         { path: 'manage_admission', element: <ManageAdmission /> },            
         { path: 'payment', element: <PaymentUpdateForm /> },                    
         { path: 'manage_payment', element: <ManagePayment /> },

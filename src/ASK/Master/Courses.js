@@ -652,7 +652,8 @@ const CoursesMaster = () => {
                 />
 
                 <Button type="submit" variant="contained" color="primary" size="small" sx={{ boxShadow: 1 }} fullWidth>
-                  {operation} Course
+                  Save
+                  {/* {operation} Course */}
                 </Button>
               </Stack>
             </form>

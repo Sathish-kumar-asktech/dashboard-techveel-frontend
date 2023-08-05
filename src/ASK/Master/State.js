@@ -227,8 +227,7 @@ const State = () => {
         error = true;
         helperText = 'State already exists. Please enter a different state name.';
         setIsFormSubmitted(false);
-      }
-      else if (operation === 'Edit' && isStateExistsinEDIt) {
+      } else if (operation === 'Edit' && isStateExistsinEDIt) {
         error = true;
         helperText = 'State already exists. Please enter a different state name.';
         setIsFormSubmitted(false);
@@ -445,7 +444,8 @@ const State = () => {
                   type="submit"
                   sx={{ textTransform: 'capitalize' }}
                 >
-                  {operation} State
+                  Save
+                  {/* {operation} State */}
                 </Button>
               </Stack>
             </form>

@@ -22,7 +22,7 @@ const Master = [
     icon: icon('college'),
   },
   {
-    title: 'Graduation',
+    title: 'Degree/Stream',
     path: '/dashboard/degree',
     icon: icon('degree'),
   },

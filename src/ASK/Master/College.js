@@ -185,12 +185,6 @@ const College = () => {
           }
           console.log(res.data);
         });
-
-      // getCollege();
-      // setOpenDelete(false);
-      // setAlertType('warning');
-      // setAlertMessage('College Deleted, Successfully!');
-      // setopenAlert(true);
     } catch (error) {
       console.error('Error deleting College:', error);
       setAlertType('error');
@@ -632,7 +626,8 @@ const College = () => {
                   type="submit"
                   sx={{ textTransform: 'capitalize' }}
                 >
-                  {operation} College
+                  Save
+                  {/* {operation} College */}
                 </Button>
               </Stack>
             </form>

@@ -191,8 +191,9 @@ const TermsConditions = () => {
     const isTcExists = termsConditionsData.some(
       (tc) => tc.TermsConditions.toLowerCase() === value.toLowerCase().trim()
     );
-    const isTcExistsinEdit =
-      termsConditionsData.some((tc) => tc.TermsConditions.toLowerCase() === value.toLowerCase().trim() && tc.TCId !== editTcId);
+    const isTcExistsinEdit = termsConditionsData.some(
+      (tc) => tc.TermsConditions.toLowerCase() === value.toLowerCase().trim() && tc.TCId !== editTcId
+    );
 
     if (name === 'termsConditions') {
       if (!value.trim()) {
@@ -422,7 +423,8 @@ const TermsConditions = () => {
                   type="submit"
                   sx={{ textTransform: 'capitalize' }}
                 >
-                  {operation} T & C
+                  Save
+                  {/* {operation} T & C */}
                 </Button>
               </Stack>
             </form>

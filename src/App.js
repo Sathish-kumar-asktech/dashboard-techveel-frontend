@@ -7,13 +7,18 @@ import ThemeProvider from './theme';
 // components
 import { StyledChart } from './components/chart';
 import ScrollToTop from './components/scroll-to-top';
+import TypewriterLoader from './Loaders/TypewriterLoader';
 
 // ----------------------------------------------------------------------
 
 export default function App() {
+
+  const getBasename = () => {
+    return `/${process.env.PUBLIC_URL.split('/').pop()}`;
+  };
   return (
     <HelmetProvider>
-      <BrowserRouter>
+      <BrowserRouter >
         <ThemeProvider>
           <ScrollToTop />
           <StyledChart />
@@ -21,5 +26,6 @@ export default function App() {
         </ThemeProvider>
       </BrowserRouter>
     </HelmetProvider>
+    // <TypewriterLoader/>
   );
 }

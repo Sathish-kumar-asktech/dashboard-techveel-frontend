@@ -211,22 +211,20 @@ const EducationStream = () => {
     const degreeRegex = /^[A-Za-z\s]+$/;
     const editedName = value.toLowerCase().trim();
     const isDegreeExists = degreeData.some((degree) => degree.DegreeName.toLowerCase() === editedName);
-    const isEditExists = degreeData.some((degree) => degree.DegreeName.toLowerCase() === editedName &&  degree.DegreeId !== editID
+    const isEditExists = degreeData.some(
+      (degree) => degree.DegreeName.toLowerCase() === editedName && degree.DegreeId !== editID
     );
 
-    
     if (name === 'degree') {
       if (!value.trim()) {
         error = true;
         helperText = 'Degree field cannot be empty';
         setIsFormSubmitted(false);
-      }
-      else if ( operation === 'Add' && isDegreeExists) {
+      } else if (operation === 'Add' && isDegreeExists) {
         error = true;
         helperText = 'Degree already exists. Please enter a different degree name.';
         setIsFormSubmitted(false);
-      }
-      else if ( operation === 'Edit' && isEditExists) {
+      } else if (operation === 'Edit' && isEditExists) {
         error = true;
         helperText = 'Degree already exists. Please enter a different degree name.';
         setIsFormSubmitted(false);
@@ -459,7 +457,8 @@ const EducationStream = () => {
                   type="submit"
                   sx={{ textTransform: 'capitalize' }}
                 >
-                  {operation} College Degree
+                  Save
+                  {/* {operation} College Degree */}
                 </Button>
               </Stack>
             </form>

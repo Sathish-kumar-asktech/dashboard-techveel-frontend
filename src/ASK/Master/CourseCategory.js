@@ -431,7 +431,8 @@ const CourseCategoryMaster = () => {
                 type="submit"
                 sx={{ textTransform: 'capitalize' }}
               >
-                {operation === 'Add' ? 'Add Category' : 'Update Category'}
+                Save
+                {/* {operation === 'Add' ? 'Add Category' : 'Update Category'} */}
               </Button>
             </Stack>
           </form>
