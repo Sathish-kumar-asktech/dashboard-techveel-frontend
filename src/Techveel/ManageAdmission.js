@@ -17,136 +17,293 @@ import {
   TablePagination,
   IconButton,
   DialogTitle,
-  DialogContentText,
   DialogActions,
   Snackbar,
   Alert,
+  LinearProgress,
 } from '@mui/material';
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
-import { Link } from 'react-router-dom';
-import ContactSupportIcon from '@mui/icons-material/ContactSupport';
-import React, { useState } from 'react';
+import * as XLSX from 'xlsx';
+import Slide from '@mui/material/Slide';
+import CallIcon from '@mui/icons-material/Call';
+import EmailIcon from '@mui/icons-material/Email';
+import React, { useEffect, useState } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import styled from '@emotion/styled';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-// import { useHistory } from 'react-router-dom';
-import AddLocationAltRoundedIcon from '@mui/icons-material/AddLocationAltRounded';
-import Enquiry from './Enquiry';
-import Admission from './Admission';
+import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
+import { Link, useNavigate } from 'react-router-dom';
+// import { useHistory } from "react-router-dom";
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
+import axios from '../axios';
+import './animation.css';
 
+// table header cell styles
 const StyledTableCell = styled(TableCell)({
-  color: 'darkblue',
-  fontWeight: '600',
+  color: '#424242',
+  fontWeight: '800',
   textAlign: 'center',
+  backgroundColor: '#e3f2fd',
+  padding: 'none',
+  whiteSpace: 'nowrap',
 });
 
-const ManageAdmission = () => {
-  const [locationMaster, setLocationMaster] = useState([]);
-  const [state, setState] = useState('');
+// function formatDate(dateString) {
+//   const date = new Date(dateString);
 
-  const [errors, setErrors] = useState({
-    state: false,
-  });
+//   // Format day with ordinal suffix (1st, 2nd, 3rd, etc.)
+//   const day = date.getDate();
+//   const dayWithSuffix = day + (['st', 'nd', 'rd'][(((day % 100) - 20) % 10) - 1] || 'th');
 
-  const [helperTexts, setHelperTexts] = useState({
-    state: '',
-  });
+//   // Format month
+//   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+//   const month = monthNames[date.getMonth()];
 
+//   // Format year, hours, and minutes
+//   const year = date.getFullYear();
+//   const hours = date.getHours();
+//   const minutes = date.getMinutes();
+
+//   // Format AM or PM
+//   const amPm = hours >= 12 ? 'PM' : 'AM';
+//   const formattedHours = hours % 12 || 12;
+
+//   // Construct the final formatted date string
+//   const formattedDate = `${dayWithSuffix} ${month} ${year} ${formattedHours.toString().padStart(2, '0')}.${minutes
+//     .toString()
+//     .padStart(2, '0')} ${amPm}`;
+
+//   return formattedDate;
+// }
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+
+  // Format day with leading zero if needed
+  const day = date.getDate().toString().padStart(2, '0');
+
+  // Format month with leading zero if needed
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+
+  // Format year with only the last two digits
+  const year = date.getFullYear().toString().slice(-2);
+
+  // Format hours and minutes with leading zeros
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+
+  // Format AM or PM
+  const amPm = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = (hours % 12 || 12).toString();
+
+  // Construct the final formatted date string
+  const formattedDate = `${day}/${month}/${year} ${formattedHours}:${minutes} ${amPm}`;
+
+  return formattedDate;
+}
+
+const ManageAdmissionTable = () => {
+  // eslint-disable-next-line no-restricted-globals
+  const navigate = useNavigate();
+  const [tokent, settokent] = useState(
+    'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJldmVudGxpc3QiOlt7IlVzZXJJRCI6IjEiLCJMb2dpbkNvZGUiOiIwMSIsIkxvZ2luTmFtZSI6IkFkbWluIiwiRW1haWxJZCI6ImFkbWluQGdtYWlsLmNvbSIsIlVzZXJUeXBlIjoiQURNSU4ifV0sImlhdCI6MTYzODM1NDczMX0.ZW6zEHIXTxfT-QWEzS6-GuY7bRupf2Jc_tp4fXIRabQ'
+  );
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('xs'));
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  // handle snackbar & alert messages on save
+  const [openAlert, setopenAlert] = useState(false);
+  // At the beginning of the component
+  const [openDelete, setOpenDelete] = useState(false);
+  const [stateIdToDelete, setStateIdToDelete] = useState(null);
+  const [AdmissionData, setAdmissionData] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  // alert messages on operations
+  const [alertType, setAlertType] = useState('success'); // 'success' or 'error'
+  const [alertMessage, setAlertMessage] = useState('');
+  const [openLoader, setOpenLoader] = useState(false);
 
-    if (errors.state) {
-      return;
+  // get all states Request
+  const formatDateToSend = (date) => {
+    if (!date) {
+      return ''; // Handle null or empty date
     }
-
-    console.log(state);
-
-    const newLocation = {
-      state,
-    };
-
-    setLocationMaster([...locationMaster, newLocation]);
-    setState('');
-    handleClose();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}${month}${day}`;
   };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    if (name === 'state') setState(value);
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-    }));
-    setHelperTexts((prevHelperTexts) => ({
-      ...prevHelperTexts,
-    }));
-  };
-
-  const validateInput = (name, value) => {
-    let error = false;
-    let helperText = '';
-
-    const locationRegex = /^[A-Za-z\s]+$/;
-
-    if (name === 'state') {
-      if (!locationRegex.test(value)) {
-        error = true;
-        helperText = 'Please enter a valid state';
-      }
+  const formatDateToinitialValues = (date) => {
+    if (!date) {
+      return ''; // Handle null or empty date
     }
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: error,
-    }));
-    setHelperTexts((prevHelperTexts) => ({
-      ...prevHelperTexts,
-      [name]: helperText,
-    }));
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`; // Format the date as "yyyy-MM-dd"
   };
 
-  const handleBlur = (event) => {
-    const { name, value } = event.target;
-    validateInput(name, value);
+  // Get the current date and 30 days before the current date
+  const currentDate = new Date();
+  const fromDateOnCurrentMonth = new Date(currentDate);
+  fromDateOnCurrentMonth.setDate(1);
+
+  // Convert fromDate and toDate objects to formatted date strings
+  const initialFromDate = formatDateToinitialValues(fromDateOnCurrentMonth);
+  const initialToDate = formatDateToinitialValues(currentDate);
+
+  // Set the initial state for fromDate and toDate
+  const [fromDate, setFromDate] = useState(initialFromDate);
+  const [toDate, setToDate] = useState(initialToDate);
+
+  // console.log('inital values:', fromDate, toDate);
+  const handleFromDateChange = (event) => {
+    setFromDate(event.target.value);
   };
 
-  // handle delete popup
-  const [openDelete, setOpenDelete] = useState(false);
+  const handleToDateChange = (event) => {
+    setToDate(event.target.value);
+  };
 
-  const handleClickOpenDelete = () => {
+  // API Integration
+  useEffect(() => {
+    getAdmissions();
+    formatDateToinitialValues();
+  }, []);
+
+  const getAdmissions = async () => {
+    setOpenLoader(true);
+    try {
+      // Convert fromDate and toDate strings to Date objects
+      const fromDateObj = fromDate ? new Date(fromDate) : null;
+      const toDateObj = toDate ? new Date(toDate) : null;
+
+      // Format date objects for the API request
+      const formattedFromDate = formatDateToSend(fromDateObj);
+      const formattedToDate = formatDateToSend(toDateObj);
+
+      const res = await axios.instance.post(
+        '/GetAllAdmission',
+        {
+          FromDate: formattedFromDate,
+          ToDate: formattedToDate,
+        },
+        {
+          headers: { Authorization: tokent, 'Content-Type': 'application/json' },
+        }
+      );
+      setAdmissionData(res.data);
+      // console.log(res.data);
+      console.log(formatDateToSend(fromDateObj));
+      setOpenLoader(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setOpenLoader(false);
+    }
+  };
+
+  // delete Request to delete state
+  const deleteAdmission = async (admId) => {
+    try {
+      await axios.instance
+        .delete(`/deleteAdmission/${admId}`, {
+          headers: { Authorization: tokent, 'Content-Type': 'application/json' },
+        })
+        .then((res) => {
+          if (res.data === '') {
+            getAdmissions();
+            setOpenDelete(false);
+            setAlertType('warning');
+            setAlertMessage('Admission Deleted, Successfully!');
+            setopenAlert(true);
+          } else {
+            getAdmissions();
+            setOpenDelete(false);
+            setAlertType('error');
+            setAlertMessage("Oops! Can't delete this data. It's connected to other information.");
+            setopenAlert(true);
+          }
+          // console.log(res.data);
+        });
+    } catch (error) {
+      console.error('Error deleting Admission:', error);
+      setAlertType('error');
+      setAlertMessage('Failed to delete the Admission.');
+      setopenAlert(true);
+    }
+  };
+
+  // handleNewAdmission
+  const handleNewAdmission = () => {
+    navigate('/dashboard/admission', { state: { isEdit: false, AdmissionData: null } });
+  };
+
+  // handle delete popup dialog
+  const handleDelete = (admId) => {
     setOpenDelete(true);
+    setStateIdToDelete(admId);
   };
 
+  const handleDeleteConfirmed = (admId) => {
+    deleteAdmission(admId);
+  };
   const handleCloseDelete = () => {
     setOpenDelete(false);
-    setopenAlert(true);
+    setopenAlert(false);
   };
-
-  const [openAlert, setopenAlert] = useState(false);
 
   const handleCloseAlert = () => {
     setopenAlert(false);
   };
 
-  const filteredData = locationMaster.filter((c) => c.state.toLowerCase().includes(searchTerm.toLowerCase()));
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, filteredData.length - page * rowsPerPage);
+  const handleDownloadExcel = () => {
+    const data = filteredData.map((enq) => ({
+      ID: enq.AdmissionId,
+      FullName: `${enq.FirstName} ${enq.LastName}`,
+      Phone: enq.PhoneNumber,
+      Email: enq.Email,
+      DOB: enq.Dob,
+      CourseCategory: enq.Course_Category,
+      Course: enq.Course_Name,
+      AdmissionDate: formatDate(enq.CreatedDate),
+      Address_Line_1: enq.Address1,
+      Address_Line_2: enq.Address2,
+      City: enq.CityName,
+      State: enq.StateName,
+      pincode: enq.Zipcode,
+    }));
 
-  //   const NavigateToForm = () => {
-  //   const history = useHistory();
-  //   history.push('/dashboard/enquiry');
-  // };
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Admission');
+    XLSX.writeFile(workbook, `AdmissionData+${currentDate}+.xlsx`);
+  };
+
+  // search & filter
+  const filteredData = AdmissionData.filter((enq) => {
+    const searchTermLowerCase = searchTerm.toLowerCase();
+    return Object.values(enq).some((value) => {
+      if (typeof value === 'string') {
+        return value.toLowerCase().includes(searchTermLowerCase);
+      }
+      return false;
+    });
+  });
+  // pagination
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, filteredData.length - page * rowsPerPage);
+  const totalRows = filteredData.length;
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
+  const currentPage = Math.max(0, Math.min(page, totalPages - 1));
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm]);
+
   return (
     <>
       <Snackbar
@@ -154,43 +311,117 @@ const ManageAdmission = () => {
         autoHideDuration={3000}
         onClose={handleCloseAlert}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        TransitionComponent={(props) => <Slide {...props} direction={'right'} />}
       >
-        <Alert onClose={handleCloseAlert} severity="error" sx={{ width: '100%' }}>
-          Deleted Successfully!
+        <Alert onClose={handleCloseAlert} severity={alertType} variant="filled" sx={{ width: '100%' }}>
+          {alertMessage}
         </Alert>
       </Snackbar>
-      <Container sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
-        <Typography variant="h4" color="primary" fontWeight={600} mb={2} textAlign="center">
-          Manage Admission
-        </Typography>
-        <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} spacing={2} my={2}>
-          <TextField
-            type="text"
-            variant="outlined"
-            color="secondary"
-            label="Search"
-            size="small"
-            onChange={(e) => setSearchTerm(e.target.value)}
-            value={searchTerm}
-          />
 
-          <Link to="/dashboard/admission">
-            <Button variant="contained" color="info" endIcon={<PersonAddAltIcon />}>
+      <Container maxWidth={'xl'} sx={{ mt: 1, pt: 2 }} elevation={3} component={Paper}>
+        {/* table header */}
+        <Typography
+          variant="h5"
+          p={1}
+          boxShadow={1}
+          borderColor="#e8f5e9"
+          textAlign={'center'}
+          border={0.5}
+          borderRadius={1}
+          my={2}
+          color="#0277bd"
+        >
+          Manage Admissions
+        </Typography>
+
+        {/* search & add button */}
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          spacing={2}
+          my={3}
+        >
+          <Stack direction={'row'} spacing={1}>
+            <TextField
+              fullWidth
+              size="small"
+              label="From Date"
+              type="date"
+              value={fromDate}
+              onChange={handleFromDateChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="To Date"
+              type="date"
+              value={toDate}
+              onChange={handleToDateChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <IconButton
+              color="primary"
+              // sx={{
+              //   backgroundColor: '#2196F3',
+              //   color: '#FFFFFF',
+              //   padding: '8px',
+              // }}
+              onClick={getAdmissions}
+            >
+              <PendingActionsIcon />
+            </IconButton>
+          </Stack>
+          <Stack direction={'row'} spacing={2} alignItems={'center'}>
+            <TextField
+              type="text"
+              variant="outlined"
+              color="secondary"
+              label="Search"
+              size="small"
+              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchTerm}
+            />
+            <Button
+              variant="contained"
+              startIcon={<DownloadForOfflineIcon />}
+              onClick={handleDownloadExcel}
+              color="success"
+              title="Download as excel"
+              sx={{ color: 'white' }}
+            >
+              Download
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ boxShadow: 1, whiteSpace: 'nowrap' }}
+              onClick={handleNewAdmission}
+              endIcon={<ContactSupportIcon />}
+            >
               New Admission
             </Button>
-          </Link>
+          </Stack>
         </Stack>
 
+        {/* table  */}
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow sx={{ padding: 'none' }}>
                 <StyledTableCell>S.No</StyledTableCell>
-                <StyledTableCell>Student Name</StyledTableCell>
+                <StyledTableCell>ID</StyledTableCell>
+                <StyledTableCell>Full Name</StyledTableCell>
                 <StyledTableCell>Phone</StyledTableCell>
-                <StyledTableCell>Email</StyledTableCell> 
-                <StyledTableCell>Location</StyledTableCell>                
-                <StyledTableCell>Joining Date</StyledTableCell>
+                <StyledTableCell>Email</StyledTableCell>
+                <StyledTableCell>Course Category</StyledTableCell>
+                <StyledTableCell>Course</StyledTableCell>
+                <StyledTableCell>Admission Date</StyledTableCell>
                 <StyledTableCell>Actions</StyledTableCell>
               </TableRow>
             </TableHead>
@@ -198,77 +429,140 @@ const ManageAdmission = () => {
               {(rowsPerPage > 0
                 ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 : filteredData
-              ).map((state, index) => (
-                <TableRow key={index} hover>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">{state.state}</TableCell>
+              ).map((enq, index) => (
+                <TableRow key={enq.AdmissionId} hover>
+                  <TableCell align="center" padding="none">
+                    {page * rowsPerPage + index + 1}
+                  </TableCell>
                   <TableCell align="center">
-                    <IconButton aria-label="Edit">
-                      <EditIcon color="primary" />
-                    </IconButton>
-                    <IconButton aria-label="Delete" onClick={handleClickOpenDelete}>
+                    {'TECH'}
+                    {enq.AdmissionId}
+                  </TableCell>
+                  <TableCell align="center" sx={{ textTransform: 'capitalize' }}>
+                    {enq.FirstName} {enq.LastName}
+                  </TableCell>
+
+                  <TableCell align="center" padding="none" sx={{ textTransform: 'capitalize', color: 'inherit' }}>
+                    <Button
+                      component="a"
+                      variant="text"
+                      title="Click to Call"
+                      href={`tel:${+91}${enq.PhoneNumber}`}
+                      sx={{ color: 'inherit', fontWeight: 400 }}
+                      startIcon={<CallIcon color="success" />}
+                    >
+                      {enq.PhoneNumber}
+                    </Button>
+                  </TableCell>
+
+                  <TableCell align="center" padding="none" sx={{ textTransform: 'capitalize', color: 'inherit' }}>
+                    <Button
+                      component="a"
+                      variant="text"
+                      color="inherit"
+                      title="Click to Mail"
+                      href={`mailto:${enq.Email}`}
+                      sx={{ fontWeight: 400, color: 'inherit' }}
+                      startIcon={<EmailIcon color="error" />}
+                    >
+                      {enq.Email}
+                    </Button>
+                  </TableCell>
+
+                  <TableCell align="center" padding="normal" sx={{ textTransform: 'capitalize', whiteSpace: 'nowrap' }}>
+                    {enq.Course_Category}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    padding="normal"
+                    sx={{
+                      textTransform: 'capitalize',
+                      // whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {enq.Course_Name}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    padding="normal"
+                    sx={{
+                      textTransform: 'capitalize',
+                      // whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {formatDate(enq.CreatedDate)}
+                  </TableCell>
+                  <TableCell align="center" padding="normal" sx={{ padding: '0' }}>
+                    <Link to={{ pathname: `/dashboard/admission/${enq.AdmissionId}` }}>
+                      <IconButton aria-label="Edit">
+                        <EditIcon color="primary" />
+                      </IconButton>
+                    </Link>
+                    <IconButton aria-label="Delete" onClick={() => handleDelete(enq.AdmissionId)}>
                       <DeleteForeverIcon color="error" />
                     </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
-
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={3} />
+                  <TableCell colSpan={8} />
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
 
+        {/* pagination */}
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={filteredData.length}
+          count={totalRows}
           rowsPerPage={rowsPerPage}
-          page={page}
+          page={currentPage} // Use the calculated currentPage value
           onPageChange={(event, newPage) => setPage(newPage)}
           onRowsPerPageChange={(event) => {
             setRowsPerPage(parseInt(event.target.value, 10));
-            setPage(0);
+            setPage(0); // Reset the page when rowsPerPage changes
           }}
           mt={2}
         />
       </Container>
 
       <Grid m={2}>
-        <Dialog
-          fullScreen={fullScreen}
-          open={open}
-          // onClose={handleClose}
-          fullWidth
-        >
-          <Container component={Paper} elevation={2} sx={{ py: 2 }}>
-            <Admission />
-          </Container>
-        </Dialog>
-
-        {/* delete confirmation  */}
+        {/* delete confirmation popup dialog box */}
         <Dialog
           open={openDelete}
           onClose={handleCloseDelete}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
+          fullScreen={fullScreen}
+          fullWidth
+          maxWidth="xs"
         >
           <DialogTitle id="alert-dialog-title">{'Are you sure want to Delete?'}</DialogTitle>
-          <DialogActions sx={{ m: 4 }}>
-            <Button variant="contained" color="error" onClick={handleCloseDelete}>
-              Yes
+          <DialogActions>
+            <Button variant="contained" autoFocus onClick={handleCloseDelete} color="primary">
+              Cancel
             </Button>
-            <Button variant="outlined" onClick={handleCloseDelete}>
-              No
+            <Button variant="contained" onClick={() => handleDeleteConfirmed(stateIdToDelete)} color="error" autoFocus>
+              Delete
             </Button>
           </DialogActions>
         </Dialog>
       </Grid>
+
+      {/* loader popup dialog box */}
+      <Dialog
+        open={openLoader}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
+      </Dialog>
     </>
   );
 };
 
-export default ManageAdmission;
+export default ManageAdmissionTable;

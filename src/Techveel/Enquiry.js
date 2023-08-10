@@ -26,9 +26,8 @@ import {
   Dialog,
   LinearProgress,
 } from '@mui/material';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import TypewriterLoader from '../Loaders/TypewriterLoader';
 import DirectAdmission from './DirectAdmission';
 import axios from '../axios';
 
@@ -63,7 +62,7 @@ export default function Enquiry() {
   const [contactNumber, setContactNumber] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [gender, setGender] = React.useState('');
-  const [educationLevel, setEducationLevel] = React.useState('');
+  const [educationLevel, setEducationLevel] = React.useState('ug');
   const [degree, setDegree] = React.useState('');
   const [collegeName, setCollegeName] = React.useState('');
   const [preferredMode, setPreferredMode] = React.useState('');
@@ -84,7 +83,14 @@ export default function Enquiry() {
   const [companyName, setCompanyName] = React.useState('');
   const [refereedByName, setRefereedByName] = React.useState('');
   const [refereedByContact, setRefereedByContact] = React.useState('');
+
   const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+  const calculateMaxDate = () => {
+    const currentDate = new Date();
+    currentDate.setFullYear(currentDate.getFullYear() - 18);
+    return currentDate.toISOString().split('T')[0];
+  };
+
   const [cityData, setcityData] = React.useState([]);
   const [collegeData, setCollegeData] = React.useState([]);
   const [degreeData, setDegreeData] = useState([]);
@@ -101,10 +107,6 @@ export default function Enquiry() {
 
   const handleCloseAlert = () => {
     setopenAlert(false);
-  };
-
-  const handleCloseLoader = () => {
-    setOpenLoader(false);
   };
 
   const [fieldErrors, setFieldErrors] = React.useState({
@@ -143,7 +145,7 @@ export default function Enquiry() {
     refereedByName: false,
     refereedByContact: false,
   });
-  const navigate = useNavigate(); // Use useNavigate() inside the Goback function
+  const navigate = useNavigate();
 
   // API Integration
   React.useEffect(() => {
@@ -218,172 +220,129 @@ export default function Enquiry() {
     }
   };
 
-    useEffect(() => {
-      const getOneData = async (id) => {
-        setOpenLoader(true);
-        try {
-          const res = await axios.instance.get(`GetOneEnquiry/${id}`, {
-            headers: { Authorization: tokent, 'Content-Type': 'application/json' },
-          });
-          const data = res.data;
-          data.forEach((editDataonID) => {
-            const {
-              FirstName,
-              LastName,
-              FatherName,
-              CityId,
-              Dob,
-              PhoneNumber,
-              Email,
-              Gender,
-              GraduationType,
-              DegreeId,
-              CollegeId,
-              PerferenceMode,
-              PerferenceDay,
-              PerferenceTiming,
-              CourseId, // course category
-              CourseTechnologyId, // course skills
-              SslcPer,
-              SslcPassedout,
-              HscPer,
-              HscPassedout,
-              UGPer,
-              UGPassedOut,
-              PGPer,
-              PGPassedOut,
-              WorkingStatus,
-              WorkingIndustry,
-              WorkingCompany,
-              ReferenceBy,
-              ReferenceContactNumber,
-              // Add other properties here
-            } = editDataonID;
-            const formattedDob = new Date(Dob).toISOString().substr(0, 10);
-            const selectedCityObj = cityData.find((city) => city.CityId === CityId);
-            const selectedCollegeObj = collegeData.find((clg) => clg.CollegeId === CollegeId);
-            const selectedDegreeObj = degreeData.find((deg) => deg.DegreeId === DegreeId);
-            const selectedCousreCategoryObj = categoryData.find((catgry) => catgry.CourseCategoryId === CourseId);
-            const selectedCousreObj = courseData.find((crse) => crse.CourseId === CourseTechnologyId);
-            console.log('all city:', collegeData);
-            console.log('selected new', collegeData, CollegeId);
-            setFirstName(FirstName);
-            setLastName(LastName);
-            setFatherName(FatherName);
-            setCity(selectedCityObj);
-            setDob(formattedDob);
-            setContactNumber(PhoneNumber);
-            setEmail(Email);
-            setGender(Gender);
-            setEducationLevel(GraduationType);
-            setDegree(selectedDegreeObj);
-            setCollegeName(selectedCollegeObj);
-            setPreferredMode(PerferenceMode);
-            setPreferredDays(PerferenceDay);
-            setPreferredTimings(PerferenceTiming);
-            setPrefCourseCategory(selectedCousreCategoryObj);
-            setPrefTechnology(selectedCousreObj);
-            setSSLCMarks(SslcPer);
-            setSSLCYear(SslcPassedout);
-            setHSCMarks(HscPer);
-            setHSCYear(HscPassedout);
-            setUGMarks(UGPer);
-            setUGYear(UGPassedOut);
-            setPGMarks(PGPer);
-            setPGYear(PGPassedOut);
-            setWorking(WorkingStatus);
-            setIndustry(WorkingIndustry);
-            setCompanyName(WorkingCompany);
-            setRefereedByName(ReferenceBy);
-            setRefereedByContact(ReferenceContactNumber);
-            // Set other properties using their respective set functions
-          });
-          console.log('After Fetching: ', data);
-          setOpenLoader(false);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-          setOpenLoader(false);
-        } finally {
-          setOpenLoader(false);
-        }
-      };
-      if (id) {
-        getOneData(id);
+  useEffect(() => {
+    const getOneData = async (id) => {
+      setOpenLoader(true);
+      try {
+        const res = await axios.instance.get(`GetOneEnquiry/${id}`, {
+          headers: { Authorization: tokent, 'Content-Type': 'application/json' },
+        });
+        const data = res.data;
+        data.forEach((editDataonID) => {
+          const {
+            FirstName,
+            LastName,
+            FatherName,
+            CityId,
+            Dob,
+            PhoneNumber,
+            Email,
+            Gender,
+            GraduationType,
+            DegreeId,
+            CollegeId,
+            PerferenceMode,
+            PerferenceDay,
+            PerferenceTiming,
+            CourseId, // course category
+            CourseTechnologyId, // course skills
+            SslcPer,
+            SslcPassedout,
+            HscPer,
+            HscPassedout,
+            UGPer,
+            UGPassedOut,
+            PGPer,
+            PGPassedOut,
+            WorkingStatus,
+            WorkingIndustry,
+            WorkingCompany,
+            ReferenceBy,
+            ReferenceContactNumber,
+            // Add other properties here
+          } = editDataonID;
+          const formattedDob = new Date(Dob).toISOString().substr(0, 10);
+          const selectedCityObj = cityData.find((city) => city.CityId === CityId);
+          const selectedCollegeObj = collegeData.find((clg) => clg.CollegeId === CollegeId);
+          const selectedDegreeObj = degreeData.find((deg) => deg.DegreeId === DegreeId);
+          const selectedCousreCategoryObj = categoryData.find((catgry) => catgry.CourseCategoryId === CourseId);
+          const selectedCousreObj = courseData.find((crse) => crse.CourseId === CourseTechnologyId);
+          console.log('all city:', collegeData);
+          console.log('selected new', collegeData, CollegeId);
+          setFirstName(FirstName);
+          setLastName(LastName);
+          setFatherName(FatherName);
+          setCity(selectedCityObj);
+          setDob(formattedDob);
+          setContactNumber(PhoneNumber);
+          setEmail(Email);
+          setGender(Gender);
+          setEducationLevel(GraduationType);
+          setDegree(selectedDegreeObj);
+          setCollegeName(selectedCollegeObj);
+          setPreferredMode(PerferenceMode);
+          setPreferredDays(PerferenceDay);
+          setPreferredTimings(PerferenceTiming);
+          setPrefCourseCategory(selectedCousreCategoryObj);
+          setPrefTechnology(selectedCousreObj);
+          setSSLCMarks(SslcPer);
+          setSSLCYear(SslcPassedout);
+          setHSCMarks(HscPer);
+          setHSCYear(HscPassedout);
+          setUGMarks(UGPer);
+          setUGYear(UGPassedOut);
+          setPGMarks(PGPer);
+          setPGYear(PGPassedOut);
+          setWorking(WorkingStatus);
+          setIndustry(WorkingIndustry);
+          setCompanyName(WorkingCompany);
+          setRefereedByName(ReferenceBy);
+          setRefereedByContact(ReferenceContactNumber);
+          // Set other properties using their respective set functions
+        });
+        console.log('After Fetching: ', data);
+        setOpenLoader(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setOpenLoader(false);
+      } finally {
+        setOpenLoader(false);
       }
-    }, [id, cityData, collegeData, courseData, categoryData, degreeData]);
-  
-  
-    // // get all Cities Request
-  // useEffect(() => {
-  //   const getOneData = async (id) => {
-  //     try {
-  //       const res = await axios.instance.get(`GetOneEnquiry/${id}`, {
-  //         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
-  //       });
-  //       const data = res.data;
-  //       for(const editDataonID of data){
-  //       setFirstName(editDataonID.FirstName);
-  //       setLastName(editDataonID.LastName);
-  //       setFatherName(editDataonID.FatherName);
-  //       // setCity(editDataonID.CityId);
-  //       // setDob(editDataonID.Dob);
-  //       // setContactNumber(editDataonID.PhoneNumber);
-  //       // setEmail(editDataonID.Email);
-  //       // setGender(editDataonID.Gender);
-  //       // setEducationLevel(editDataonID.GraduationType);
-  //       // setDegree(editDataonID.DegreeId);
-  //       // setCollegeName(editDataonID.CollegeId);
-  //       // setPreferredMode(editDataonID.PerferenceMode);
-  //       // setPreferredDays(editDataonID.PerferenceDay);
-  //       // setPreferredTimings(editDataonID.PerferenceTiming);
-  //       // setPrefCourseCategory(editDataonID.CourseId);
-  //       // setPrefTechnology(editDataonID.CourseTechnologyId);
-  //       // setSSLCMarks(editDataonID.SslcPer);
-  //       // setSSLCYear(editDataonID.SslcPassedout);
-  //       // setHSCMarks(editDataonID.HscPer);
-  //       // setHSCYear(editDataonID.HscPassedout);
-  //       // setUGMarks(editDataonID.UGPer);
-  //       // setUGYear(editDataonID.UGPassedOut);
-  //       // setPGMarks(editDataonID.PGPer);
-  //       // setPGYear(editDataonID.PGPassedOut);
-  //       // setWorking(editDataonID.WorkingStatus);
-  //       // setIndustry(editDataonID.WorkingIndustry);
-  //       // setCompanyName(editDataonID.WorkingCompany);
-  //       // setRefereedByName(editDataonID.ReferenceBy);
-  //       // setRefereedByContact(editDataonID.ReferenceContactNumber);
-  //       }
-  //       console.log('After Fetching: ', data);
-  //     } catch (error) {
-  //       console.error('Error fetching data:', error);
-  //     }
-  //   };
-  //   getOneData(id);
-  // }, [id]);
+    };
+    if (id) {
+      getOneData(id);
+    }
+  }, [id, cityData, collegeData, courseData, categoryData, degreeData]);
+
   // post Request to Add new record
   const addNewEnquiry = async (Enquirydata) => {
     setOpenLoader(true);
     try {
-      const res = await axios.instance
-        .post('/InsertEnquiry', Enquirydata, {
-          headers: { Authorization: tokent, 'Content-Type': 'application/json' },
-        })
-        .then((res) => {
-          if (res.data === '') {
-            setAlertType('success');
-            setAlertMessage('New Enquiry Added, Successfully!');
-            setopenAlert(true);
-            setOpenLoader(false);
-            setTimeout(() => {
-              navigate('/dashboard/manage_enquiry'); // Redirect to the desired path
-            }, 4000);
-          } else {
-            setAlertType('error');
-            setAlertMessage("Oops! Can't add this data...");
-            setopenAlert(true);
-            setOpenLoader(false);
-          }
-          // console.log(res.data);
-        });
+      const res = await axios.instance.post('/InsertEnquiry', Enquirydata, {
+        headers: { Authorization: tokent, 'Content-Type': 'application/json' },
+      });
+      if (res.data && res.data.length > 0 && res.data[0].EnquiryId !== undefined) {
+        setAlertType('success');
+        setAlertMessage('New Enquiry Done, Successfully!');
+        setopenAlert(true);
+        setOpenLoader(false);
+        setTimeout(() => {
+          navigate('/dashboard/manage_enquiry'); // Redirect to the desired path
+        }, 4000);
+      } else if (
+        res.data ===
+        'Error 50001, severity 16, state 3 was raised, but no message with that error number was found in sys.messages. If error is larger than 50000, make sure the user-defined message is added using sp_addmessage.'
+      ) {
+        setAlertType('warning');
+        setAlertMessage('Phone or email are already in use. Please provide new information.');
+        setopenAlert(true);
+        setOpenLoader(false);
+      } else {
+        setAlertType('error');
+        setAlertMessage("Oops! Can't add this data...");
+        setopenAlert(true);
+        setOpenLoader(false);
+      }
     } catch (error) {
       console.error('Error adding new Enquiry:', error);
       setAlertType('error');
@@ -423,7 +382,7 @@ export default function Enquiry() {
       setAlertType('error');
       setAlertMessage('Failed to update the Enquiry Details.');
       setopenAlert(true);
-    } 
+    }
   };
 
   // Custom validation regex patterns
@@ -452,7 +411,6 @@ export default function Enquiry() {
 
   const validateEducationDetails = () => {
     const errors = {
-      
       degree: !degree,
       collegeName: !collegeName,
       sslcYear: !sslcYear,
@@ -632,13 +590,13 @@ export default function Enquiry() {
             </Link>
           </Box>
           <Box>
-          <FormControl size="small" fullWidth component="fieldset">
-            <RadioGroup row value={formType} onChange={(e) => setFormType(e.target.value)}>
-              <FormControlLabel value="enquiry" control={<Radio />} label="Enquiry" />
-              <FormControlLabel value="direct" control={<Radio />} label="Direct Application" />
-            </RadioGroup>
-          </FormControl>
-        </Box>
+            <FormControl size="small" fullWidth component="fieldset">
+              <RadioGroup row value={formType} onChange={(e) => setFormType(e.target.value)}>
+                <FormControlLabel value="enquiry" control={<Radio />} label="Enquiry" />
+                <FormControlLabel value="direct" control={<Radio />} label="Direct Application" />
+              </RadioGroup>
+            </FormControl>
+          </Box>
         </Stack>
         {formType === 'enquiry' ? (
           <>
@@ -727,8 +685,7 @@ export default function Enquiry() {
                                   lastName: !nameRegex.test(e.target.value),
                                 }));
                               }}
-                              // onBlur={validateBasicInfo} // Validate on blur
-                              error={fieldErrors.lastName} // Show error if there is an error for this field
+                              error={fieldErrors.lastName}
                               helperText={fieldErrors.lastName && 'Enter valid name'}
                             />
 
@@ -744,8 +701,7 @@ export default function Enquiry() {
                                   fatherName: !nameRegex.test(e.target.value),
                                 }));
                               }}
-                              // onBlur={validateBasicInfo} // Validate on blur
-                              error={fieldErrors.fatherName} // Show error if there is an error for this field
+                              error={fieldErrors.fatherName}
                               helperText={fieldErrors.fatherName && 'Enter valid name'}
                             />
                           </Stack>
@@ -765,14 +721,13 @@ export default function Enquiry() {
                                   dob: !e.target.value.trim() === '',
                                 }));
                               }}
-                              // onBlur={validateBasicInfo} // Validate on blur
-                              error={fieldErrors.dob} // Show error if there is an error for this field
+                              error={fieldErrors.dob}
                               helperText={fieldErrors.dob && 'Invalid date of birth'}
                               InputLabelProps={{
                                 shrink: true,
                               }}
                               inputProps={{
-                                max: today,
+                                max: calculateMaxDate(),
                               }}
                             />
 
@@ -825,7 +780,7 @@ export default function Enquiry() {
                           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} my={1}>
                             <TextField
                               size="small"
-                              type='number'
+                              type="number"
                               fullWidth
                               label="Contact Number"
                               value={contactNumber}
@@ -836,7 +791,6 @@ export default function Enquiry() {
                                   contactNumber: !contactRegex.test(e.target.value),
                                 }));
                               }}
-                              // onBlur={validateBasicInfo} // Validate on blur
                               error={fieldErrors.contactNumber}
                               helperText={fieldErrors.contactNumber && 'Enter 10 digit mobile number'}
                             />
@@ -852,8 +806,7 @@ export default function Enquiry() {
                                   email: !emailRegex.test(e.target.value),
                                 }));
                               }}
-                              // onBlur={validateBasicInfo} // Validate on blur
-                              error={fieldErrors.email} // Show error if there is an error for this field
+                              error={fieldErrors.email}
                               helperText={fieldErrors.email && 'Enter valid email address'}
                             />
 
@@ -1112,7 +1065,6 @@ export default function Enquiry() {
                                     setFieldErrors((prevFieldErrors) => ({
                                       ...prevFieldErrors,
                                       pgMarks: educationLevel === 'pg' ? !marksRegex.test(e.target.value) : false,
-                                      // pgMarks:  || !e.target.value,
                                     }));
                                   }}
                                   error={fieldErrors.pgMarks}

@@ -20,6 +20,7 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  LinearProgress,
 } from '@mui/material';
 import * as XLSX from 'xlsx';
 import Slide from '@mui/material/Slide';
@@ -47,34 +48,59 @@ const StyledTableCell = styled(TableCell)({
   padding: 'none',
 });
 
+// function formatDate(dateString) {
+//   const date = new Date(dateString);
+
+//   // Format day with ordinal suffix (1st, 2nd, 3rd, etc.)
+//   const day = date.getDate();
+//   const dayWithSuffix = day + (['st', 'nd', 'rd'][(((day % 100) - 20) % 10) - 1] || 'th');
+
+//   // Format month
+//   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+//   const month = monthNames[date.getMonth()];
+
+//   // Format year, hours, and minutes
+//   const year = date.getFullYear();
+//   const hours = date.getHours();
+//   const minutes = date.getMinutes();
+
+//   // Format AM or PM
+//   const amPm = hours >= 12 ? 'PM' : 'AM';
+//   const formattedHours = hours % 12 || 12;
+
+//   // Construct the final formatted date string
+//   const formattedDate = `${dayWithSuffix} ${month} ${year} ${formattedHours.toString().padStart(2, '0')}.${minutes
+//     .toString()
+//     .padStart(2, '0')} ${amPm}`;
+
+//   return formattedDate;
+// }
+
 function formatDate(dateString) {
   const date = new Date(dateString);
 
-  // Format day with ordinal suffix (1st, 2nd, 3rd, etc.)
-  const day = date.getDate();
-  const dayWithSuffix = day + (['st', 'nd', 'rd'][(((day % 100) - 20) % 10) - 1] || 'th');
+  // Format day with leading zero if needed
+  const day = date.getDate().toString().padStart(2, '0');
 
-  // Format month
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const month = monthNames[date.getMonth()];
+  // Format month with leading zero if needed
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
 
-  // Format year, hours, and minutes
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+  // Format year with only the last two digits
+  const year = date.getFullYear().toString().slice(-2);
+
+  // Format hours and minutes with leading zeros
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
 
   // Format AM or PM
   const amPm = hours >= 12 ? 'PM' : 'AM';
-  const formattedHours = hours % 12 || 12;
+  const formattedHours = (hours % 12 || 12).toString();
 
   // Construct the final formatted date string
-  const formattedDate = `${dayWithSuffix} ${month} ${year} ${formattedHours.toString().padStart(2, '0')}.${minutes
-    .toString()
-    .padStart(2, '0')} ${amPm}`;
+  const formattedDate = `${day}/${month}/${year} ${formattedHours}:${minutes} ${amPm}`;
 
   return formattedDate;
 }
-
 const ManageEnquiriesTable = () => {
   // eslint-disable-next-line no-restricted-globals
   const navigate = useNavigate();
@@ -98,6 +124,7 @@ const ManageEnquiriesTable = () => {
   // alert messages on operations
   const [alertType, setAlertType] = useState('success'); // 'success' or 'error'
   const [alertMessage, setAlertMessage] = useState('');
+  const [openLoader, setOpenLoader] = useState(false);
 
   // get all states Request
   const formatDateToSend = (date) => {
@@ -150,6 +177,7 @@ const ManageEnquiriesTable = () => {
   }, []);
 
   const getEnquiries = async () => {
+    setOpenLoader(true);
     try {
       // Convert fromDate and toDate strings to Date objects
       const fromDateObj = fromDate ? new Date(fromDate) : null;
@@ -172,8 +200,10 @@ const ManageEnquiriesTable = () => {
       setenquiryData(res.data);
       console.log(res.data);
       console.log(formatDateToSend(fromDateObj));
+      setOpenLoader(false);
     } catch (error) {
       console.error('Error fetching data:', error);
+      setOpenLoader(false);
     }
   };
 
@@ -495,6 +525,16 @@ const ManageEnquiriesTable = () => {
           </DialogActions>
         </Dialog>
       </Grid>
+
+      {/* loader popup dialog box */}
+      <Dialog
+        open={openLoader}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
+      </Dialog>
     </>
   );
 };

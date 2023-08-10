@@ -2,7 +2,6 @@ import { Navigate, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
-//
 import BlogPage from './pages/BlogPage';
 import UserPage from './pages/UserPage';
 import LoginPage from './pages/LoginPage';
@@ -11,10 +10,8 @@ import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import City from './ASK/Master/City';
 import State from './ASK/Master/State';
-import College from './ASK/Master/College';;
+import College from './ASK/Master/College';
 import Enquiry from './Techveel/Enquiry';
-import Admission from './Techveel/Admission';
-import ManageAdmission from './Techveel/ManageAdmission';
 import PaymentUpdateForm from './Techveel/PaymentUpdateForm';
 import ManagePayment from './Techveel/ManagePayment';
 import TermsConditions from './ASK/Master/TermsConditions';
@@ -22,6 +19,8 @@ import EducationStream from './ASK/Master/EducationStream';
 import CourseCategoryMaster from './ASK/Master/CourseCategory';
 import CoursesMaster from './ASK/Master/Courses';
 import ManageEnquiriesTable from './Techveel/ManageEnquiries';
+import AdmissionForm from './Techveel/Admission';
+import ManageAdmissionTable from './Techveel/ManageAdmission';
 
 // ----------------------------------------------------------------------
 
@@ -45,10 +44,12 @@ export default function Router() {
         { path: 'terms&conditions', element: <TermsConditions /> },                         
         { path: 'enquiry', element: <Enquiry /> },                                
         { path: 'enquiry/:id', element: <Enquiry /> },
-        { path: 'admission', element: <Admission /> },
+        { path: 'admission', element: <AdmissionForm /> },
+        { path: 'admission/:id', element: <AdmissionForm /> },
+        { path: 'newadmission', element: <AdmissionForm /> },
         { path: 'manage_enquiry', element: <ManageEnquiriesTable /> },        
         { path: 'manage_students', element: <ManageEnquiriesTable /> },               
-        { path: 'manage_admission', element: <ManageAdmission /> },            
+        { path: 'manage_admission', element: <ManageAdmissionTable /> },            
         { path: 'payment', element: <PaymentUpdateForm /> },                    
         { path: 'manage_payment', element: <ManagePayment /> },
       ],
