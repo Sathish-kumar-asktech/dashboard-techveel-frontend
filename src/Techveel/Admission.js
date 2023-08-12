@@ -34,6 +34,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import JsPDF from 'jspdf';
 import axios from '../axios';
 
 const useStyles = styled((theme) => ({
@@ -426,7 +427,7 @@ export default function AdmissionForm() {
           setCompanyName(WorkingCompany);
           setRefereedByName(ReferenceBy);
           setRefereedByContact(ReferenceContactNumber);
-          setFinalFee(setPrefTechnology.courseFee);
+          setFinalFee(selectedCousreObj.Course_Fee);
         });
         console.log('After Fetching: ', data);
         setOpenLoader(false);
@@ -875,12 +876,68 @@ export default function AdmissionForm() {
   const handleReset = () => {
     setActiveStep(0);
   };
+  // const handleFormSubmit = () => {
+  //   if (activeStep === 4 && !validateOthers()) {
+  //     return;
+  //   }
+  //   const formData = new FormData();
+  //   formData.append('AdmissionId', id);
+  //   formData.append('FirstName', firstName);
+  //   formData.append('LastName', lastName);
+  //   formData.append('FatherName', fatherName);
+  //   formData.append('Dob', dob);
+  //   formData.append('PhoneNumber', contactNumber);
+  //   formData.append('Email', email);
+  //   formData.append('Gender', gender);
+  //   formData.append('GraduationType', educationLevel);
+  //   formData.append('Address1', address1);
+  //   formData.append('Address2', address2);
+  //   formData.append('CityId', city.CityId);
+  //   formData.append('StateId', state.StateId);
+  //   formData.append('ZipCode', pinCode);
+  //   formData.append('doc1', selectedFilePhoto);
+  //   formData.append('doc2', selectedFilePan);
+  //   formData.append('doc3', selectedFileAadhaar);
+  //   formData.append('doc4', selectedFileCollegeID);
+  //   formData.append('DegreeId', degree.DegreeId);
+  //   formData.append('CollegeId', collegeName.CollegeId);
+  //   formData.append('PerferenceMode', preferredMode);
+  //   formData.append('PerferenceDay', preferredDays);
+  //   formData.append('PerferenceTiming', preferredTimings);
+  //   formData.append('CourseId', prefCourseCategory.CourseCategoryId);
+  //   formData.append('CourseTechnologyId', prefTechnology.CourseId);
+  //   formData.append('SslcPer', sslcMarks);
+  //   formData.append('SslcPassedout', sslcYear);
+  //   formData.append('HscPer', hscMarks);
+  //   formData.append('HscPassedout', hscYear);
+  //   formData.append('UGPer', ugMarks);
+  //   formData.append('UGPassedOut', ugYear);
+  //   formData.append('PGPer', pgMarks.length !== 0 ? pgMarks : 0);
+  //   formData.append('PGPassedOut', !pgYear ? 'N/A' : pgYear);
+  //   formData.append('WorkingStatus', working);
+  //   formData.append('WorkingIndustry', industry);
+  //   formData.append('WorkingCompany', companyName);
+  //   formData.append('ReferenceBy', refereedByName);
+  //   formData.append('ReferenceContactNumber', refereedByContact);
+  //   formData.append('DiscountAmount', discount);
+  //   formData.append('NetAmount', finalFee);
+  //   formData.append(!id ? 'CreatedBy' : 'Modifyby', 86);
+  //   if (!id) {
+  //     addNewAdmission(formData);
+  //   } else {
+  //     UpdateAdmission(id, formData);
+  //   }
+  // };
+
   const handleFormSubmit = () => {
     if (activeStep === 4 && !validateOthers()) {
       return;
     }
     const formData = new FormData();
+    if(id)
+    {
     formData.append('AdmissionId', id);
+    }
     formData.append('FirstName', firstName);
     formData.append('LastName', lastName);
     formData.append('FatherName', fatherName);
@@ -921,6 +978,10 @@ export default function AdmissionForm() {
     formData.append('DiscountAmount', discount);
     formData.append('NetAmount', finalFee);
     formData.append(!id ? 'CreatedBy' : 'Modifyby', 86);
+    if(alreadyEnquired)
+    {
+    formData.append('EnquiryId', selectedEnquiryID.EnquiryId);
+    }
     if (!id) {
       addNewAdmission(formData);
     } else {

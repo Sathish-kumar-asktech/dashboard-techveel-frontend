@@ -152,9 +152,9 @@ export default function AdmissionForm() {
   const [openLoader, setOpenLoader] = useState(false);
 
   // alreadyenquired
-  // const [alreadyEnquired, setAlreadyEnquired] = useState('n');
-  // const [enquiryData, setenquiryData] = useState([]);
-  // const [selectedEnquiryID, setselectedEnquiryID] = useState('');
+  const [alreadyEnquired, setAlreadyEnquired] = useState('n');
+  const [enquiryData, setenquiryData] = useState([]);
+  const [selectedEnquiryID, setselectedEnquiryID] = useState('');
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB (adjust as needed)
   const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
@@ -290,40 +290,40 @@ export default function AdmissionForm() {
     selectedEnquiryIDerr: false,
   });
 
-  // const resetFields = () => {
-  //   setFirstName('');
-  //   setLastName('');
-  //   setFatherName('');
-  //   setCity(null);
-  //   setState(null);
-  //   setDob('');
-  //   setContactNumber('');
-  //   setEmail('');
-  //   setGender('');
-  //   setEducationLevel('');
-  //   setDegree(null);
-  //   setCollegeName(null);
-  //   setPreferredMode('');
-  //   setPreferredDays([]);
-  //   setPreferredTimings([]);
-  //   setPrefCourseCategory(null);
-  //   setPrefTechnology(null);
-  //   setSSLCMarks('');
-  //   setSSLCYear('');
-  //   setHSCMarks('');
-  //   setHSCYear('');
-  //   setUGMarks('');
-  //   setUGYear('');
-  //   setPGMarks('');
-  //   setPGYear('');
-  //   setWorking('');
-  //   setIndustry('');
-  //   setCompanyName('');
-  //   setRefereedByName('');
-  //   setRefereedByContact('');
-  //   setFinalFee('');
-  //   setselectedEnquiryID('');
-  // };
+  const resetFields = () => {
+    setFirstName('');
+    setLastName('');
+    setFatherName('');
+    setCity(null);
+    setState(null);
+    setDob('');
+    setContactNumber('');
+    setEmail('');
+    setGender('');
+    setEducationLevel('');
+    setDegree(null);
+    setCollegeName(null);
+    setPreferredMode('');
+    setPreferredDays([]);
+    setPreferredTimings([]);
+    setPrefCourseCategory(null);
+    setPrefTechnology(null);
+    setSSLCMarks('');
+    setSSLCYear('');
+    setHSCMarks('');
+    setHSCYear('');
+    setUGMarks('');
+    setUGYear('');
+    setPGMarks('');
+    setPGYear('');
+    setWorking('');
+    setIndustry('');
+    setCompanyName('');
+    setRefereedByName('');
+    setRefereedByContact('');
+    setFinalFee('');
+    setselectedEnquiryID('');
+  };
 
   const navigate = useNavigate();
 
@@ -344,125 +344,124 @@ export default function AdmissionForm() {
     // getEnquiries();
   }, []);
 
-  // // pre fill based on selected enquiry reference
-  // useEffect(() => {
-  //   const getOneDataEquiryRef = async (selectedEnquiryID) => {
-  //     setOpenLoader(true);
-  //     try {
-  //       const res = await axios.instance.get(`GetOneEnquiry/${selectedEnquiryID}`, {
-  //         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
-  //       });
-  //       const data = res.data;
-  //       console.log('after seleting enq id from ref: ', data);
-  //       data.forEach((editDataonID) => {
-  //         const {
-  //           FirstName,
-  //           LastName,
-  //           FatherName,
-  //           CityId,
-  //           Dob,
-  //           PhoneNumber,
-  //           Email,
-  //           Gender,
-  //           GraduationType,
-  //           DegreeId,
-  //           CollegeId,
-  //           PerferenceMode,
-  //           PerferenceDay,
-  //           PerferenceTiming,
-  //           CourseId, // course category
-  //           CourseTechnologyId, // course skills
-  //           SslcPer,
-  //           SslcPassedout,
-  //           HscPer,
-  //           HscPassedout,
-  //           UGPer,
-  //           UGPassedOut,
-  //           PGPer,
-  //           PGPassedOut,
-  //           WorkingStatus,
-  //           WorkingIndustry,
-  //           WorkingCompany,
-  //           ReferenceBy,
-  //           ReferenceContactNumber,
-  //           // Add other properties here
-  //         } = editDataonID;
-  //         const formattedDob = new Date(Dob).toISOString().substr(0, 10);
-  //         const selectedCityObj = cityData.find((city) => city.CityId === CityId);
-  //         const selectedStateObj = stateData.find((ste) => ste.StateId === selectedCityObj.StateId);
-  //         const selectedCollegeObj = collegeData.find((clg) => clg.CollegeId === CollegeId);
-  //         const selectedDegreeObj = degreeData.find((deg) => deg.DegreeId === DegreeId);
-  //         const selectedCousreCategoryObj = categoryData.find((catgry) => catgry.CourseCategoryId === CourseId);
-  //         const selectedCousreObj = courseData.find((crse) => crse.CourseId === CourseTechnologyId);
-  //         console.log('all city:', collegeData);
-  //         console.log('selected new', collegeData, CollegeId);
-  //         setFirstName(FirstName);
-  //         setLastName(LastName);
-  //         setFatherName(FatherName);
-  //         setCity(selectedCityObj);
-  //         setState(selectedStateObj);
-  //         setDob(formattedDob);
-  //         setContactNumber(PhoneNumber);
-  //         setEmail(Email);
-  //         setGender(Gender);
-  //         setEducationLevel(GraduationType);
-  //         setDegree(selectedDegreeObj);
-  //         setCollegeName(selectedCollegeObj);
-  //         setPreferredMode(PerferenceMode);
-  //         setPreferredDays(PerferenceDay);
-  //         setPreferredTimings(PerferenceTiming);
-  //         setPrefCourseCategory(selectedCousreCategoryObj);
-  //         setPrefTechnology(selectedCousreObj);
-  //         setSSLCMarks(SslcPer);
-  //         setSSLCYear(SslcPassedout);
-  //         setHSCMarks(HscPer);
-  //         setHSCYear(HscPassedout);
-  //         setUGMarks(UGPer);
-  //         setUGYear(UGPassedOut);
-  //         setPGMarks(PGPer);
-  //         setPGYear(PGPassedOut);
-  //         setWorking(WorkingStatus);
-  //         setIndustry(WorkingIndustry);
-  //         setCompanyName(WorkingCompany);
-  //         setRefereedByName(ReferenceBy);
-  //         setRefereedByContact(ReferenceContactNumber);
-  //         setFinalFee(setPrefTechnology.courseFee);
-  //       });
-  //       console.log('After Fetching: ', data);
-  //       setOpenLoader(false);
-  //     } catch (error) {
-  //       console.error('Error fetching data:', error);
-  //       setOpenLoader(false);
-  //     } finally {
-  //       setOpenLoader(false);
-  //     }
-  //   };
-  //   if (selectedEnquiryID) {
-  //     getOneDataEquiryRef(selectedEnquiryID.EnquiryId);
-  //   }
-  // }, [selectedEnquiryID, cityData, collegeData, courseData, categoryData, degreeData]);
+  // pre fill based on selected enquiry reference
+  useEffect(() => {
+    const getOneDataEquiryRef = async (selectedEnquiryID) => {
+      setOpenLoader(true);
+      try {
+        const res = await axios.instance.get(`GetOneEnquiry/${selectedEnquiryID}`, {
+          headers: { Authorization: tokent, 'Content-Type': 'application/json' },
+        });
+        const data = res.data;
+        console.log('after seleting enq id from ref: ', data);
+        data.forEach((editDataonID) => {
+          const {
+            FirstName,
+            LastName,
+            FatherName,
+            CityId,
+            Dob,
+            PhoneNumber,
+            Email,
+            Gender,
+            GraduationType,
+            DegreeId,
+            CollegeId,
+            PerferenceMode,
+            PerferenceDay,
+            PerferenceTiming,
+            CourseId, // course category
+            CourseTechnologyId, // course skills
+            SslcPer,
+            SslcPassedout,
+            HscPer,
+            HscPassedout,
+            UGPer,
+            UGPassedOut,
+            PGPer,
+            PGPassedOut,
+            WorkingStatus,
+            WorkingIndustry,
+            WorkingCompany,
+            ReferenceBy,
+            ReferenceContactNumber,
+            // Add other properties here
+          } = editDataonID;
+          const formattedDob = new Date(Dob).toISOString().substr(0, 10);
+          const selectedCityObj = cityData.find((city) => city.CityId === CityId);
+          const selectedStateObj = stateData.find((ste) => ste.StateId === selectedCityObj.StateId);
+          const selectedCollegeObj = collegeData.find((clg) => clg.CollegeId === CollegeId);
+          const selectedDegreeObj = degreeData.find((deg) => deg.DegreeId === DegreeId);
+          const selectedCousreCategoryObj = categoryData.find((catgry) => catgry.CourseCategoryId === CourseId);
+          const selectedCousreObj = courseData.find((crse) => crse.CourseId === CourseTechnologyId);
+          console.log('all city:', collegeData);
+          console.log('selected new', collegeData, CollegeId);
+          setFirstName(FirstName);
+          setLastName(LastName);
+          setFatherName(FatherName);
+          setCity(selectedCityObj);
+          setState(selectedStateObj);
+          setDob(formattedDob);
+          setContactNumber(PhoneNumber);
+          setEmail(Email);
+          setGender(Gender);
+          setEducationLevel(GraduationType);
+          setDegree(selectedDegreeObj);
+          setCollegeName(selectedCollegeObj);
+          setPreferredMode(PerferenceMode);
+          setPreferredDays(PerferenceDay);
+          setPreferredTimings(PerferenceTiming);
+          setPrefCourseCategory(selectedCousreCategoryObj);
+          setPrefTechnology(selectedCousreObj);
+          setSSLCMarks(SslcPer);
+          setSSLCYear(SslcPassedout);
+          setHSCMarks(HscPer);
+          setHSCYear(HscPassedout);
+          setUGMarks(UGPer);
+          setUGYear(UGPassedOut);
+          setPGMarks(PGPer);
+          setPGYear(PGPassedOut);
+          setWorking(WorkingStatus);
+          setIndustry(WorkingIndustry);
+          setCompanyName(WorkingCompany);
+          setRefereedByName(ReferenceBy);
+          setRefereedByContact(ReferenceContactNumber);
+          setFinalFee(setPrefTechnology.courseFee);
+        });
+        console.log('After Fetching: ', data);
+        setOpenLoader(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setOpenLoader(false);
+      } finally {
+        setOpenLoader(false);
+      }
+    };
+    if (selectedEnquiryID) {
+      getOneDataEquiryRef(selectedEnquiryID.EnquiryId);
+    }
+  }, [selectedEnquiryID, cityData, collegeData, courseData, categoryData, degreeData]);
 
-  // useEffect(() => {
-  //   const getEnquiries = async () => {
-  //     setOpenLoader(true);
-  //     try {
-  //       const res = await axios.instance.get('/GetallEnquiryforAdmission', {
-  //         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
-  //       });
-  //       setenquiryData(res.data);
-  //       // console.log(res.data);
-  //       // console.log(formatDateToSend(fromDateObj));
-  //       setOpenLoader(false);
-  //     } catch (error) {
-  //       console.error('Error fetching data:', error);
-  //       setOpenLoader(false);
-  //     }
-  //   };
-  //   if (alreadyEnquired === 'y') getEnquiries();
-  // }, [alreadyEnquired]);
+  useEffect(() => {
+    const getEnquiries = async () => {
+      setOpenLoader(true);
+      try {
+        const res = await axios.instance.get('/GetallEnquiryforAdmission', {
+          headers: { Authorization: tokent, 'Content-Type': 'application/json' },
+        });
+        setenquiryData(res.data);
+        // console.log(res.data);
+        // console.log(formatDateToSend(fromDateObj));
+        setOpenLoader(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setOpenLoader(false);
+      }
+    };
+    if (alreadyEnquired === 'y') getEnquiries();
+  }, [alreadyEnquired]);
 
   // get all Cities Request
-  
   const getCities = async () => {
     try {
       const res = await axios.instance.get('/GetAllCity', {
@@ -748,8 +747,8 @@ export default function AdmissionForm() {
       lastName: !nameRegex.test(lastName),
       fatherName: !nameRegex.test(fatherName),
       dob: dob.trim() === '',
-      // alreadyEnquired: alreadyEnquired.trim() === '',
-      // selectedEnquiryID: alreadyEnquired === 'y' && !selectedEnquiryID,
+      alreadyEnquired: alreadyEnquired.trim() === '',
+      selectedEnquiryID: alreadyEnquired === 'y' && !selectedEnquiryID,
       gender: gender.trim() === '',
       educationLevel: educationLevel.trim() === '',
       contactNumber: !contactRegex.test(contactNumber),
@@ -986,8 +985,8 @@ export default function AdmissionForm() {
           {alertMessage}
         </Alert>
       </Snackbar>
-      <>
-        {/* <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+      <Container maxWidth={'xl'}>
+        <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
             <Link to="/dashboard/manage_admission">
               <Button variant="outlined" color="info" startIcon={<KeyboardBackspaceIcon />}>
@@ -1061,7 +1060,7 @@ export default function AdmissionForm() {
               </Typography>
             )}
           </FormControl>
-        )} */}
+        )}
         <>
           <Typography
             variant="h4"
@@ -2273,7 +2272,7 @@ export default function AdmissionForm() {
             )}
           </Box>
         </>
-      </>
+      </Container>
 
       {/* loader popup dialog box */}
       <Dialog

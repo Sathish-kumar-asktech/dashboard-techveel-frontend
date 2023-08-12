@@ -30,6 +30,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import DirectAdmission from './DirectAdmission';
 import axios from '../axios';
+import AdmissionForm from './AdmissionDirect';
+// import AdmissionForm from './Admission';
 
 const steps = ['Basic Information', 'Education Details', 'Other Preferences'];
 
@@ -1374,7 +1376,7 @@ export default function Enquiry() {
           </>
         ) : (
           <>
-            <DirectAdmission  />
+            <AdmissionForm  />
           </>
         )}
       </Container>
