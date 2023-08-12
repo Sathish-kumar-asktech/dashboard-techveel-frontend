@@ -20,6 +20,7 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  LinearProgress
 } from '@mui/material';
 import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
@@ -68,6 +69,9 @@ const State = () => {
   // alert messages on operations
   const [alertType, setAlertType] = useState('success'); // 'success' or 'error'
   const [alertMessage, setAlertMessage] = useState('');
+  
+  const [openLoader, setOpenLoader] = useState(false);
+
 
   // API Integration
   useEffect(() => {
@@ -76,12 +80,15 @@ const State = () => {
 
   // get all states Request
   const getState = async () => {
+    
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllState', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
       });
       setStateData(res.data);
       console.log(res.data);
+      setOpenLoader(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -150,11 +157,6 @@ const State = () => {
           }
           console.log(res.data);
         });
-      // getState();
-      // setOpenDelete(false);
-      // setAlertType('warning');
-      // setAlertMessage('State Deleted, Successfully!');
-      // setopenAlert(true);
     } catch (error) {
       console.error('Error deleting state:', error);
       setAlertType('error');
@@ -323,7 +325,7 @@ const State = () => {
         </Alert>
       </Snackbar>
 
-      <Container sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
+      <Container maxWidth={"xl"}  sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
         {/* table header */}
         <Typography variant="h6" color="primary" fontWeight={600} mb={2} textAlign="center" sx={{ color: '#616161' }}>
           State Master
@@ -473,6 +475,17 @@ const State = () => {
           </DialogActions>
         </Dialog>
       </Grid>
+
+      
+      {/* loader popup dialog box */}
+      <Dialog
+        open={openLoader}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
+      </Dialog>
     </>
   );
 };

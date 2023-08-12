@@ -26,6 +26,7 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
+  LinearProgress
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Slide from '@mui/material/Slide';
@@ -55,6 +56,8 @@ const EducationStream = () => {
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [openAlert, setopenAlert] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
+  const [openLoader, setOpenLoader] = useState(false);
+
   const [idToDelete, setIdToDelete] = useState(null);
   const [degreeData, setDegreeData] = useState([]);
   const [page, setPage] = useState(0);
@@ -79,12 +82,14 @@ const EducationStream = () => {
 
   // get all degrees Request
   const getDegrees = async () => {
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllDegree', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
       });
       setDegreeData(res.data);
       console.log(res.data);
+      setOpenLoader(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -324,7 +329,7 @@ const EducationStream = () => {
         </Alert>
       </Snackbar>
 
-      <Container sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
+      <Container maxWidth={"xl"}  sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
         <Typography variant="h6" color="primary" fontWeight={600} mb={2} textAlign="center" sx={{ color: '#616161' }}>
           College Degree Master
         </Typography>
@@ -484,6 +489,16 @@ const EducationStream = () => {
           </DialogActions>
         </Dialog>
       </Grid>
+
+      {/* loader popup dialog box */}
+      <Dialog
+        open={openLoader}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
+      </Dialog>
     </>
   );
 };

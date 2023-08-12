@@ -20,6 +20,7 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  LinearProgress
 } from '@mui/material';
 import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
@@ -63,18 +64,22 @@ const TermsConditions = () => {
   });
   const [alertType, setAlertType] = useState('success');
   const [alertMessage, setAlertMessage] = useState('');
+  const [openLoader, setOpenLoader] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState('');
   useEffect(() => {
     getTermsConditions();
   }, []);
 
   const getTermsConditions = async () => {
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllTNC', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
       });
       setTermsConditionsData(res.data);
       console.log(res.data);
+      setOpenLoader(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -138,11 +143,6 @@ const TermsConditions = () => {
           }
           console.log(res.data);
         });
-      // getTermsConditions();
-      // setOpenDelete(false);
-      // setAlertType('warning');
-      // setAlertMessage('Terms & Conditions Deleted, Successfully!');
-      // setopenAlert(true);
     } catch (error) {
       console.error('Error deleting terms & conditions:', error);
       setAlertType('error');
@@ -297,7 +297,7 @@ const TermsConditions = () => {
         </Alert>
       </Snackbar>
 
-      <Container sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
+      <Container maxWidth={"xl"}  sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
         <Typography variant="h6" color="primary" fontWeight={600} mb={2} textAlign="center" sx={{ color: '#616161' }}>
           Terms & Conditions Master
         </Typography>
@@ -450,6 +450,16 @@ const TermsConditions = () => {
           </DialogActions>
         </Dialog>
       </Grid>
+
+      {/* /* loader popup dialog box */} 
+      <Dialog
+        open={openLoader}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
+      </Dialog>
     </>
   );
 };

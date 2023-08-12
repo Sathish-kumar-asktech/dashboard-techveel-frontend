@@ -49,58 +49,21 @@ const StyledTableCell = styled(TableCell)({
   whiteSpace: 'nowrap',
 });
 
-// function formatDate(dateString) {
-//   const date = new Date(dateString);
+function formatDate(inputDateTime) {
+  const isoDate = new Date(inputDateTime);
 
-//   // Format day with ordinal suffix (1st, 2nd, 3rd, etc.)
-//   const day = date.getDate();
-//   const dayWithSuffix = day + (['st', 'nd', 'rd'][(((day % 100) - 20) % 10) - 1] || 'th');
+  const day = isoDate.getUTCDate().toString().padStart(2, '0');
+  const month = (isoDate.getUTCMonth() + 1).toString().padStart(2, '0');
+  const year = isoDate.getUTCFullYear();
 
-//   // Format month
-//   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-//   const month = monthNames[date.getMonth()];
+  let hour = isoDate.getUTCHours();
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  hour %= 12;
+  hour = hour || 12; // Convert 0 to 12
 
-//   // Format year, hours, and minutes
-//   const year = date.getFullYear();
-//   const hours = date.getHours();
-//   const minutes = date.getMinutes();
+  const minute = isoDate.getUTCMinutes().toString().padStart(2, '0');
 
-//   // Format AM or PM
-//   const amPm = hours >= 12 ? 'PM' : 'AM';
-//   const formattedHours = hours % 12 || 12;
-
-//   // Construct the final formatted date string
-//   const formattedDate = `${dayWithSuffix} ${month} ${year} ${formattedHours.toString().padStart(2, '0')}.${minutes
-//     .toString()
-//     .padStart(2, '0')} ${amPm}`;
-
-//   return formattedDate;
-// }
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-
-  // Format day with leading zero if needed
-  const day = date.getDate().toString().padStart(2, '0');
-
-  // Format month with leading zero if needed
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-
-  // Format year with only the last two digits
-  const year = date.getFullYear().toString().slice(-2);
-
-  // Format hours and minutes with leading zeros
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-
-  // Format AM or PM
-  const amPm = hours >= 12 ? 'PM' : 'AM';
-  const formattedHours = (hours % 12 || 12).toString();
-
-  // Construct the final formatted date string
-  const formattedDate = `${day}/${month}/${year} ${formattedHours}:${minutes} ${amPm}`;
-
-  return formattedDate;
+  return `${day}/${month}/${year} ${hour}:${minute} ${ampm}`;
 }
 
 const ManageAdmissionTable = () => {
@@ -263,20 +226,64 @@ const ManageAdmissionTable = () => {
   };
 
   const handleDownloadExcel = () => {
+    // console.log(filteredData);
     const data = filteredData.map((enq) => ({
-      ID: enq.AdmissionId,
+      ID: enq.EnquiryId,
       FullName: `${enq.FirstName} ${enq.LastName}`,
       Phone: enq.PhoneNumber,
       Email: enq.Email,
-      DOB: enq.Dob,
       CourseCategory: enq.Course_Category,
       Course: enq.Course_Name,
-      AdmissionDate: formatDate(enq.CreatedDate),
-      Address_Line_1: enq.Address1,
-      Address_Line_2: enq.Address2,
-      City: enq.CityName,
-      State: enq.StateName,
-      pincode: enq.Zipcode,
+      EnquiryDate: formatDate(enq.CreatedDate),
+      CollegeName: enq.CollegeName,
+      DegreeName: enq.DegreeName,
+      DOB: formatDate(enq.Dob),
+      Gender: enq.Gender,
+      HSCPassedOut: enq.HscPassedout,
+      HSCPercentage: enq.HscPer,
+      UGPassedOut: enq.UGPassedOut,
+      UGPercentage: enq.UGPer,
+      PGPassedOut: enq.PGPassedOut,
+      PGPercentage: enq.PGPer,
+      SSLCPassedOut: enq.SslcPassedout,
+      SSLCPercentage: enq.SslcPer,
+      GraduationType: enq.GraduationType,
+      WorkingCompany: enq.WorkingCompany,
+      WorkingIndustry: enq.WorkingIndustry,
+      ReferenceBy: enq.ReferenceBy,
+      ReferenceContactNumber: enq.ReferenceContactNumber,
+      PreferenceDay: enq.PerferenceDay,
+      PreferenceMode: enq.PerferenceMode,
+      PreferenceTiming: enq.PerferenceTiming,
+      Address1: enq.Address1,
+      Address2: enq.Address2,
+      AdmissionId: enq.AdmissionId,
+      AdmissionNo: enq.AdmissionNo,
+      CityName: enq.CityName,
+      CourseId: enq.CourseId,
+      CourseTechnologyId: enq.CourseTechnologyId,
+      DiscountAmount: enq.DiscountAmount,
+      NetAmount: enq.NetAmount,
+      StateName: enq.StateName,
+      WorkingStatus: enq.WorkingStatus,
+      ZipCode: enq.ZipCode,
+      photo: enq.doc1,
+      pancard: enq.doc2,
+      aadhaar: enq.doc3,
+      collegeID: enq.doc4,
+      // ID: enq.AdmissionId,
+      // FullName: `${enq.FirstName} ${enq.LastName}`,
+      // Phone: enq.PhoneNumber,
+      // Email: enq.Email,
+      // DOB: enq.Dob,
+      // CourseCategory: enq.Course_Category,
+      // Course: enq.Course_Name,
+      // AdmissionDate: formatDate(enq.CreatedDate),
+      // Address_Line_1: enq.Address1,
+      // Address_Line_2: enq.Address2,
+      // City: enq.CityName,
+      // State: enq.StateName,
+      // pincode: enq.Zipcode,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -318,7 +325,7 @@ const ManageAdmissionTable = () => {
         </Alert>
       </Snackbar>
 
-      <Container maxWidth={'xl'} sx={{ mt: 1, pt: 2 }} elevation={3} component={Paper}>
+      <Container maxWidth={'xl'} sx={{ pt: 2 }} elevation={3} component={Paper}>
         {/* table header */}
         <Typography
           variant="h5"
@@ -462,7 +469,7 @@ const ManageAdmissionTable = () => {
                       color="inherit"
                       title="Click to Mail"
                       href={`mailto:${enq.Email}`}
-                      sx={{ fontWeight: 400, color: 'inherit' }}
+                      sx={{ fontWeight: 400, color: 'inherit', textTransform: 'lowercase' }}
                       startIcon={<EmailIcon color="error" />}
                     >
                       {enq.Email}
@@ -472,6 +479,7 @@ const ManageAdmissionTable = () => {
                   <TableCell align="center" padding="normal" sx={{ textTransform: 'capitalize', whiteSpace: 'nowrap' }}>
                     {enq.Course_Category}
                   </TableCell>
+
                   <TableCell
                     align="center"
                     padding="normal"
@@ -482,6 +490,7 @@ const ManageAdmissionTable = () => {
                   >
                     {enq.Course_Name}
                   </TableCell>
+
                   <TableCell
                     align="center"
                     padding="normal"
@@ -490,6 +499,7 @@ const ManageAdmissionTable = () => {
                       // whiteSpace: 'nowrap'
                     }}
                   >
+                    {/* {enq.CreatedDate} */}
                     {formatDate(enq.CreatedDate)}
                   </TableCell>
                   <TableCell align="center" padding="normal" sx={{ padding: '0' }}>

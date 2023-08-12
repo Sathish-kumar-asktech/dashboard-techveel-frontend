@@ -151,11 +151,6 @@ export default function AdmissionForm() {
   const [alertMessage, setAlertMessage] = useState('');
   const [openLoader, setOpenLoader] = useState(false);
 
-  // alreadyenquired
-  const [alreadyEnquired, setAlreadyEnquired] = useState('n');
-  const [enquiryData, setenquiryData] = useState([]);
-  const [selectedEnquiryID, setselectedEnquiryID] = useState('');
-
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB (adjust as needed)
   const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 
@@ -173,6 +168,8 @@ export default function AdmissionForm() {
       alert('Invalid file type. Allowed types are JPEG, PNG, and PDF.');
       return;
     }
+    // console.log('isImageFile:', isImageFile(file));
+    setSelectedFilePhoto(file);
 
     // Update the selected file and error state based on the fileType
     if (fileType === 'photo') {
@@ -220,7 +217,6 @@ export default function AdmissionForm() {
     }
 
     if (selectedPreviewFile) {
-      console.log("selectedPreviewFile: ", selectedPreviewFile);
       setSelectedPreviewFile(selectedPreviewFile);
       setOpenPreview(true);
     }
@@ -285,45 +281,7 @@ export default function AdmissionForm() {
     industry: false,
     refereedByName: false,
     refereedByContact: false,
-
-    alreadyEnquired: false,
-    selectedEnquiryIDerr: false,
   });
-
-  const resetFields = () => {
-    setFirstName('');
-    setLastName('');
-    setFatherName('');
-    setCity(null);
-    setState(null);
-    setDob('');
-    setContactNumber('');
-    setEmail('');
-    setGender('');
-    setEducationLevel('');
-    setDegree(null);
-    setCollegeName(null);
-    setPreferredMode('');
-    setPreferredDays([]);
-    setPreferredTimings([]);
-    setPrefCourseCategory(null);
-    setPrefTechnology(null);
-    setSSLCMarks('');
-    setSSLCYear('');
-    setHSCMarks('');
-    setHSCYear('');
-    setUGMarks('');
-    setUGYear('');
-    setPGMarks('');
-    setPGYear('');
-    setWorking('');
-    setIndustry('');
-    setCompanyName('');
-    setRefereedByName('');
-    setRefereedByContact('');
-    setFinalFee('');
-    setselectedEnquiryID('');
-  };
 
   const navigate = useNavigate();
 
@@ -341,125 +299,7 @@ export default function AdmissionForm() {
     getDegrees();
     getCategories();
     getCourses();
-    // getEnquiries();
   }, []);
-
-  // pre fill based on selected enquiry reference
-  useEffect(() => {
-    const getOneDataEquiryRef = async (selectedEnquiryID) => {
-      setOpenLoader(true);
-      try {
-        const res = await axios.instance.get(`GetOneEnquiry/${selectedEnquiryID}`, {
-          headers: { Authorization: tokent, 'Content-Type': 'application/json' },
-        });
-        const data = res.data;
-        console.log('after seleting enq id from ref: ', data);
-        data.forEach((editDataonID) => {
-          const {
-            FirstName,
-            LastName,
-            FatherName,
-            CityId,
-            Dob,
-            PhoneNumber,
-            Email,
-            Gender,
-            GraduationType,
-            DegreeId,
-            CollegeId,
-            PerferenceMode,
-            PerferenceDay,
-            PerferenceTiming,
-            CourseId, // course category
-            CourseTechnologyId, // course skills
-            SslcPer,
-            SslcPassedout,
-            HscPer,
-            HscPassedout,
-            UGPer,
-            UGPassedOut,
-            PGPer,
-            PGPassedOut,
-            WorkingStatus,
-            WorkingIndustry,
-            WorkingCompany,
-            ReferenceBy,
-            ReferenceContactNumber,
-            // Add other properties here
-          } = editDataonID;
-          const formattedDob = new Date(Dob).toISOString().substr(0, 10);
-          const selectedCityObj = cityData.find((city) => city.CityId === CityId);
-          const selectedStateObj = stateData.find((ste) => ste.StateId === selectedCityObj.StateId);
-          const selectedCollegeObj = collegeData.find((clg) => clg.CollegeId === CollegeId);
-          const selectedDegreeObj = degreeData.find((deg) => deg.DegreeId === DegreeId);
-          const selectedCousreCategoryObj = categoryData.find((catgry) => catgry.CourseCategoryId === CourseId);
-          const selectedCousreObj = courseData.find((crse) => crse.CourseId === CourseTechnologyId);
-          console.log('all city:', collegeData);
-          console.log('selected new', collegeData, CollegeId);
-          setFirstName(FirstName);
-          setLastName(LastName);
-          setFatherName(FatherName);
-          setCity(selectedCityObj);
-          setState(selectedStateObj);
-          setDob(formattedDob);
-          setContactNumber(PhoneNumber);
-          setEmail(Email);
-          setGender(Gender);
-          setEducationLevel(GraduationType);
-          setDegree(selectedDegreeObj);
-          setCollegeName(selectedCollegeObj);
-          setPreferredMode(PerferenceMode);
-          setPreferredDays(PerferenceDay);
-          setPreferredTimings(PerferenceTiming);
-          setPrefCourseCategory(selectedCousreCategoryObj);
-          setPrefTechnology(selectedCousreObj);
-          setSSLCMarks(SslcPer);
-          setSSLCYear(SslcPassedout);
-          setHSCMarks(HscPer);
-          setHSCYear(HscPassedout);
-          setUGMarks(UGPer);
-          setUGYear(UGPassedOut);
-          setPGMarks(PGPer);
-          setPGYear(PGPassedOut);
-          setWorking(WorkingStatus);
-          setIndustry(WorkingIndustry);
-          setCompanyName(WorkingCompany);
-          setRefereedByName(ReferenceBy);
-          setRefereedByContact(ReferenceContactNumber);
-          setFinalFee(setPrefTechnology.courseFee);
-        });
-        console.log('After Fetching: ', data);
-        setOpenLoader(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setOpenLoader(false);
-      } finally {
-        setOpenLoader(false);
-      }
-    };
-    if (selectedEnquiryID) {
-      getOneDataEquiryRef(selectedEnquiryID.EnquiryId);
-    }
-  }, [selectedEnquiryID, cityData, collegeData, courseData, categoryData, degreeData]);
-
-  useEffect(() => {
-    const getEnquiries = async () => {
-      setOpenLoader(true);
-      try {
-        const res = await axios.instance.get('/GetallEnquiryforAdmission', {
-          headers: { Authorization: tokent, 'Content-Type': 'application/json' },
-        });
-        setenquiryData(res.data);
-        // console.log(res.data);
-        // console.log(formatDateToSend(fromDateObj));
-        setOpenLoader(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setOpenLoader(false);
-      }
-    };
-    if (alreadyEnquired === 'y') getEnquiries();
-  }, [alreadyEnquired]);
 
   // get all Cities Request
   const getCities = async () => {
@@ -747,8 +587,6 @@ export default function AdmissionForm() {
       lastName: !nameRegex.test(lastName),
       fatherName: !nameRegex.test(fatherName),
       dob: dob.trim() === '',
-      alreadyEnquired: alreadyEnquired.trim() === '',
-      selectedEnquiryID: alreadyEnquired === 'y' && !selectedEnquiryID,
       gender: gender.trim() === '',
       educationLevel: educationLevel.trim() === '',
       contactNumber: !contactRegex.test(contactNumber),
@@ -832,25 +670,25 @@ export default function AdmissionForm() {
       newSkipped.delete(activeStep);
     }
 
-    if (activeStep === 0 && !validateBasicInfo()) {
-      return;
-    }
+    // if (activeStep === 0 && !validateBasicInfo()) {
+    //   return;
+    // }
 
-    if (activeStep === 1 && !validateEducationDetails()) {
-      return;
-    }
+    // if (activeStep === 1 && !validateEducationDetails()) {
+    //   return;
+    // }
 
-    if (activeStep === 2 && !validateAddress()) {
-      return;
-    }
+    // if (activeStep === 2 && !validateAddress()) {
+    //   return;
+    // }
 
-    if (activeStep === 3 && !validateAttachments()) {
-      return;
-    }
+    // if (activeStep === 3 && !validateAttachments()) {
+    //   return;
+    // }
 
-    if (activeStep === 4 && !validateOthers()) {
-      return;
-    }
+    // if (activeStep === 4 && !validateOthers()) {
+    //   return;
+    // }
 
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     setSkipped(newSkipped);
@@ -994,73 +832,8 @@ export default function AdmissionForm() {
               </Button>
             </Link>
           </Box>
-          <Stack
-            direction={{ md: 'row', xs: 'column' }}
-            justifyContent={'space-between'}
-            alignItems={'center'}
-            spacing={3}
-            my={1}
-            p={1}
-          >
-            <FormLabel  component="legend" sx={{ fontWeight: 600, whiteSpace: 'nowrap', color: '#009688' }}>
-              Have you Previously made an Enquiry?
-            </FormLabel>
-            <FormControl size="small" component="fieldset">
-              <RadioGroup
-                row
-                value={alreadyEnquired}
-                onChange={(e) => {
-                  setAlreadyEnquired(e.target.value);
-                  setFieldErrors((prevFieldErrors) => ({
-                    ...prevFieldErrors,
-                    alreadyEnquired: !e.target.value.trim() === '',
-                  }));
-                }}
-              >
-                <FormControlLabel value="y" control={<Radio />} label="Yes" />
-                <FormControlLabel value="n" control={<Radio />} onClick={() => resetFields()} label="No" />
-              </RadioGroup>
-              {fieldErrors.alreadyEnquired && (
-                <Typography variant="caption" color="error" sx={{ px: 1.5 }}>
-                  Please select any option
-                </Typography>
-              )}
-            </FormControl>
-          </Stack>
+          <Box> </Box>
         </Stack>
-        {alreadyEnquired === 'y' && (
-          <FormControl fullWidth size="small"  component="fieldset" required>
-            <Autocomplete
-              size="small"
-              
-              options={enquiryData}
-              getOptionLabel={(enq) =>
-                enq ? `Enquiry ID:${enq.EnquiryId} & Full Name: ${enq.FirstName} ${enq.LastName}` : ''
-              }
-              isOptionEqualToValue={(option, value) => option.EnquiryId === value?.EnquiryId}
-              // isOptionEqualToValue={((option, value) => option.EnquiryId === value.EnquiryId) ?? undefined}
-              renderInput={(params) => <TextField {...params} label="Select Enquiry Reference" />}
-              value={selectedEnquiryID}
-              onChange={(e, newValue) => {
-                if (newValue === null) {
-                  resetFields(); 
-                  setselectedEnquiryID(null); 
-                } else {
-                  setselectedEnquiryID(newValue);
-                  setFieldErrors((prevFieldErrors) => ({
-                    ...prevFieldErrors,
-                    selectedEnquiryIDerr: !newValue,
-                  }));
-                }
-              }}
-            />
-            {fieldErrors.selectedEnquiryIDerr && (
-              <Typography variant="caption" color="error" sx={{ m: 0.5, px: 1.5 }}>
-                Please select enquiry reference
-              </Typography>
-            )}
-          </FormControl>
-        )}
         <>
           <Typography
             variant="h4"
@@ -1884,14 +1657,14 @@ export default function AdmissionForm() {
                             )}
                           </Grid>
                           {/* Dialog for previewing the selected file */}
-                          <Dialog  open={openPreview} onClose={handleClosePreview}>
+                          <Dialog open={openPreview} onClose={handleClosePreview}>
                             <DialogTitle>File Preview</DialogTitle>
-                            <DialogContent >
+                            <DialogContent>
                               {selectedPreviewFile ? (
                                 // Check if the selected file is an image file
                                 isImageFile(selectedPreviewFile) ? (
                                   // If it's an image, render the image preview
-                                  <img                                   
+                                  <img
                                     src={selectedPreviewFile}
                                     // src={URL.createObjectURL(selectedPreviewFile)}
                                     alt="Preview"
@@ -2041,6 +1814,19 @@ export default function AdmissionForm() {
                                   }));
                                 }
                               }}
+                              // onChange={(e, newValue) => {
+                              //   setPrefCourseCategory(newValue);
+                              //   const coursesInSelectedState = courseData.filter(
+                              //     (crs) => crs.CourseCategoryId === newValue.CourseCategoryId
+                              //   );
+                              //   setFilteredCourseData(coursesInSelectedState);
+                              //   setPrefTechnology('');
+                              //   setFinalFee('');
+                              //   setFieldErrors((prevFieldErrors) => ({
+                              //     ...prevFieldErrors,
+                              //     prefCourseCategory: !newValue,
+                              //   }));
+                              // }}
                             />
                             {fieldErrors.prefCourseCategory && (
                               <Typography variant="caption" color="error" sx={{ m: 0.5, px: 1.5 }}>
@@ -2077,6 +1863,16 @@ export default function AdmissionForm() {
                                 }
                                 setDiscount('');
                               }}
+                              // onChange={(e, newValue) => {
+                              //   setPrefTechnology(newValue);
+                              //   setFinalFee(prefTechnology.Course_Fee);
+                              //   // console.log(prefTechnology);
+                              //   setFieldErrors((prevFieldErrors) => ({
+                              //     ...prevFieldErrors,
+                              //     prefTechnology: !newValue,
+                              //   }));
+                              //   setDiscount('');
+                              // }}
                             />
                             {fieldErrors.prefTechnology && (
                               <Typography variant="caption" color="error" sx={{ m: 0.5, px: 1.5 }}>

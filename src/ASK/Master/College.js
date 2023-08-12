@@ -21,6 +21,7 @@ import {
   Snackbar,
   Alert,
   Autocomplete,
+  LinearProgress,
 } from '@mui/material';
 import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
@@ -81,6 +82,7 @@ const College = () => {
   const [selectedState, setSelectedState] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
   const [filteredCityData, setFilteredCityData] = useState([]);
+  const [openLoader, setOpenLoader] = useState(false);
 
   // API Integration
   useEffect(() => {
@@ -91,11 +93,13 @@ const College = () => {
 
   // get all states Request
   const getStates = async () => {
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllState', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
       });
       setStateData(res.data);
+      setOpenLoader(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -103,22 +107,26 @@ const College = () => {
 
   // get all collegs Request
   const getCollege = async () => {
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllCollege', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
       });
-      setCollegeData(res.data);
+      setCollegeData(res.data);      
+      setOpenLoader(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
   // get all Cities Request
-  const getCities = async () => {
+  const getCities = async () => {    
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllCity', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
-      });
+      });  
+      setOpenLoader(false);
       setcityData(res.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -457,8 +465,7 @@ const College = () => {
           {alertMessage}
         </Alert>
       </Snackbar>
-
-      <Container sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
+      <Container  maxWidth={"xl"}  sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
         {/* table header */}
         <Typography variant="h6" color="primary" fontWeight={600} mb={2} textAlign="center" sx={{ color: '#616161' }}>
           College Master
@@ -547,7 +554,6 @@ const College = () => {
           mt={2}
         />
       </Container>
-
       <Grid m={2}>
         {/* add new popup form dialog box */}
         <Dialog fullScreen={fullScreen} open={open} onClose={handleClose} fullWidth>
@@ -654,6 +660,15 @@ const College = () => {
           </DialogActions>
         </Dialog>
       </Grid>
+      {/* loader popup dialog box  */}
+      <Dialog
+        open={openLoader}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
+      </Dialog>
     </>
   );
 };

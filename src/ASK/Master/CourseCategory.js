@@ -19,6 +19,7 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  LinearProgress
 } from '@mui/material';
 import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
@@ -68,6 +69,8 @@ const CourseCategoryMaster = () => {
   // alert messages on operations
   const [alertType, setAlertType] = useState('success'); // 'success' or 'error'
   const [alertMessage, setAlertMessage] = useState('');
+  const [openLoader, setOpenLoader] = useState(false);
+
 
   // API Integration
   useEffect(() => {
@@ -76,12 +79,14 @@ const CourseCategoryMaster = () => {
 
   // get all course categories Request
   const getCategories = async () => {
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllCourseCategory', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
       });
       setCategoryData(res.data);
       console.log(res.data);
+      setOpenLoader(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -312,7 +317,7 @@ const CourseCategoryMaster = () => {
         </Alert>
       </Snackbar>
 
-      <Container sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
+      <Container maxWidth={"xl"}  sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
         {/* table header */}
         <Typography variant="h6" color="primary" fontWeight={600} mb={2} textAlign="center" sx={{ color: '#616161' }}>
           Course Categories
@@ -456,6 +461,16 @@ const CourseCategoryMaster = () => {
             Delete
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* loader popup dialog box */}
+      <Dialog
+        open={openLoader}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
       </Dialog>
     </>
   );

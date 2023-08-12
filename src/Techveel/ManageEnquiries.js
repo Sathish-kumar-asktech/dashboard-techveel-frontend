@@ -48,59 +48,23 @@ const StyledTableCell = styled(TableCell)({
   padding: 'none',
 });
 
-// function formatDate(dateString) {
-//   const date = new Date(dateString);
+function formatDate(inputDateTime) {
+  const isoDate = new Date(inputDateTime);
 
-//   // Format day with ordinal suffix (1st, 2nd, 3rd, etc.)
-//   const day = date.getDate();
-//   const dayWithSuffix = day + (['st', 'nd', 'rd'][(((day % 100) - 20) % 10) - 1] || 'th');
+  const day = isoDate.getUTCDate().toString().padStart(2, '0');
+  const month = (isoDate.getUTCMonth() + 1).toString().padStart(2, '0');
+  const year = isoDate.getUTCFullYear();
 
-//   // Format month
-//   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-//   const month = monthNames[date.getMonth()];
+  let hour = isoDate.getUTCHours();
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  hour %= 12;
+  hour = hour || 12; // Convert 0 to 12
 
-//   // Format year, hours, and minutes
-//   const year = date.getFullYear();
-//   const hours = date.getHours();
-//   const minutes = date.getMinutes();
+  const minute = isoDate.getUTCMinutes().toString().padStart(2, '0');
 
-//   // Format AM or PM
-//   const amPm = hours >= 12 ? 'PM' : 'AM';
-//   const formattedHours = hours % 12 || 12;
-
-//   // Construct the final formatted date string
-//   const formattedDate = `${dayWithSuffix} ${month} ${year} ${formattedHours.toString().padStart(2, '0')}.${minutes
-//     .toString()
-//     .padStart(2, '0')} ${amPm}`;
-
-//   return formattedDate;
-// }
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-
-  // Format day with leading zero if needed
-  const day = date.getDate().toString().padStart(2, '0');
-
-  // Format month with leading zero if needed
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-
-  // Format year with only the last two digits
-  const year = date.getFullYear().toString().slice(-2);
-
-  // Format hours and minutes with leading zeros
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-
-  // Format AM or PM
-  const amPm = hours >= 12 ? 'PM' : 'AM';
-  const formattedHours = (hours % 12 || 12).toString();
-
-  // Construct the final formatted date string
-  const formattedDate = `${day}/${month}/${year} ${formattedHours}:${minutes} ${amPm}`;
-
-  return formattedDate;
+  return `${day}/${month}/${year} ${hour}:${minute} ${ampm}`;
 }
+
 const ManageEnquiriesTable = () => {
   // eslint-disable-next-line no-restricted-globals
   const navigate = useNavigate();
@@ -262,6 +226,7 @@ const ManageEnquiriesTable = () => {
   };
 
   const handleDownloadExcel = () => {
+    console.log('excel object enq:', filteredData);
     const data = filteredData.map((enq) => ({
       ID: enq.EnquiryId,
       FullName: `${enq.FirstName} ${enq.LastName}`,
@@ -270,6 +235,27 @@ const ManageEnquiriesTable = () => {
       CourseCategory: enq.Course_Category,
       Course: enq.Course_Name,
       EnquiryDate: formatDate(enq.CreatedDate),
+      CollegeName: enq.CollegeName,
+      DegreeName: enq.DegreeName,
+      DOB: formatDate(enq.Dob),
+      Gender: enq.Gender,
+      HSCPassedOut: enq.HscPassedout,
+      HSCPercentage: enq.HscPer,
+      UGPassedOut: enq.UGPassedOut,
+      UGPercentage: enq.UGPer,
+      PGPassedOut: enq.PGPassedOut,
+      PGPercentage: enq.PGPer,
+      SSLCPassedOut: enq.SslcPassedout,
+      SSLCPercentage: enq.SslcPer,
+      GraduationType: enq.GraduationType,
+      WorkingStatus:enq.WorkingStatus,
+      WorkingCompany: enq.WorkingCompany,
+      WorkingIndustry: enq.WorkingIndustry,
+      ReferenceBy: enq.ReferenceBy,
+      ReferenceContactNumber: enq.ReferenceContactNumber,
+      PreferenceDay: enq.PerferenceDay,
+      PreferenceMode: enq.PerferenceMode,
+      PreferenceTiming: enq.PerferenceTiming,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -314,7 +300,7 @@ const ManageEnquiriesTable = () => {
         </Alert>
       </Snackbar>
 
-      <Container maxWidth={'xl'} sx={{ mt: 1, pt: 2 }} elevation={3} component={Paper}>
+      <Container maxWidth={'xl'} sx={{ pt: 2 }} elevation={3} component={Paper}>
         {/* table header */}
         <Typography
           variant="h5"
@@ -450,7 +436,7 @@ const ManageEnquiriesTable = () => {
                       color="inherit"
                       title="Click to Mail"
                       href={`mailto:${enq.Email}`}
-                      sx={{ fontWeight: 400, color: 'inherit' }}
+                      sx={{ fontWeight: 400, color: 'inherit', textTransform: 'lowercase' }}
                       startIcon={<EmailIcon color="error" />}
                     >
                       {enq.Email}

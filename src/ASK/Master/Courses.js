@@ -21,6 +21,7 @@ import {
   Snackbar,
   Alert,
   Autocomplete,
+  LinearProgress,
 } from '@mui/material';
 import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
@@ -84,6 +85,7 @@ const CoursesMaster = () => {
   const [selectedCourseCategory, setSelectedCourseCategory] = useState(null);
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [selectedFee, setSelectedFee] = useState(null);
+  const [openLoader, setOpenLoader] = useState(false);
 
   // API Integration
   useEffect(() => {
@@ -106,11 +108,13 @@ const CoursesMaster = () => {
 
   // get all Courses Request
   const getCourses = async () => {
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllCourses', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
       });
       setCourseData(res.data);
+      setOpenLoader(false);
       console.log('Courses', res.data);
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -466,7 +470,7 @@ const CoursesMaster = () => {
         </Alert>
       </Snackbar>
 
-      <Container sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
+      <Container maxWidth={'xl'} sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
         {/* table header */}
         <Typography variant="h6" color="primary" fontWeight={600} mb={2} textAlign="center" sx={{ color: '#616161' }}>
           Course Master
@@ -568,6 +572,18 @@ const CoursesMaster = () => {
                 </IconButton>
               </Stack>
               <Stack direction={'column'} spacing={2} p={2}>
+                <Autocomplete
+                  size="small"
+                  name="courseCategory"
+                  isOptionEqualToValue={(option, value) => option.Course_Category === value.Course_Category}
+                  options={courseCategoryData}
+                  getOptionLabel={(category) => (category ? category.Course_Category : '')}
+                  value={selectedCourseCategory || null}
+                  onChange={handleInputChangeSelect}
+                  renderInput={(params) => <TextField {...params} label="Select Course Category" />}
+                  fullWidth
+                  required
+                />
                 <TextField
                   type="text"
                   variant="outlined"
@@ -583,19 +599,6 @@ const CoursesMaster = () => {
                   error={errors.course}
                   helperText={helperTexts.course}
                   className={isFormSubmitted && errors.course ? 'shake-helper-text' : ''}
-                />
-
-                <Autocomplete
-                  size="small"
-                  name="courseCategory"
-                  isOptionEqualToValue={(option, value) => option.Course_Category === value.Course_Category}
-                  options={courseCategoryData}
-                  getOptionLabel={(category) => (category ? category.Course_Category : '')}
-                  value={selectedCourseCategory || null}
-                  onChange={handleInputChangeSelect}
-                  renderInput={(params) => <TextField {...params} label="Select Course Category" />}
-                  fullWidth
-                  required
                 />
 
                 {errors.courseCategory && (
@@ -679,6 +682,16 @@ const CoursesMaster = () => {
             Delete
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* loader popup dialog box */}
+      <Dialog
+        open={openLoader}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
       </Dialog>
     </>
   );

@@ -13,7 +13,8 @@ import {
   Stack,
   Accordion,
   AccordionSummary,
-  AccordionDetails, IconButton,
+  AccordionDetails,
+  IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PlaylistAddCircleIcon from '@mui/icons-material/PlaylistAddCircle';
@@ -31,7 +32,7 @@ import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 //
 import navConfig from './config';
-import  Master from './config2';
+import Master from './config2';
 import FormsList from './formsData';
 import Payment from './payment';
 import ManageList from './manageList';
@@ -80,7 +81,6 @@ export default function Nav({ openNav, onCloseNav }) {
 
       <Box sx={{ mb: 5, m: 2.5 }}>
         <Link underline="none">
-
           <StyledAccount>
             <Avatar src={account.photoURL} alt="photoURL" />
 
@@ -97,24 +97,27 @@ export default function Nav({ openNav, onCloseNav }) {
         </Link>
       </Box>
 
-      <Accordion disableGutters   sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit',  }}>
+      <Accordion disableGutters sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit' }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
           sx={{ borderTop: 'none' }}
-        > <Typography
+        >
+          {' '}
+          <Typography
             sx={{
-              color:"#161C24",
+              color: '#161C24',
               '&.active': {
                 color: 'text.primary',
                 bgcolor: 'action.selected',
                 fontWeight: 'fontWeightBold',
               },
             }}
-          ><IconButton aria-label="ExpandMoreIcon" >
-            <PlaylistAddCircleIcon/>
-          </IconButton>
+          >
+            <IconButton aria-label="ExpandMoreIcon">
+              <PlaylistAddCircleIcon />
+            </IconButton>
             Master
           </Typography>
         </AccordionSummary>
@@ -123,50 +126,27 @@ export default function Nav({ openNav, onCloseNav }) {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion disableGutters  sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit',  }}>
+      <Accordion disableGutters sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit' }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
           sx={{ borderTop: 'none' }}
-        > <Typography
+        >
+          {' '}
+          <Typography
             sx={{
-              color:"#161C24",
+              color: '#161C24',
               '&.active': {
                 color: 'text.primary',
                 bgcolor: 'action.selected',
                 fontWeight: 'fontWeightBold',
               },
             }}
-          ><IconButton aria-label="ExpandMoreIcon" >
-            <ChecklistRtlIcon/>
-          </IconButton>
-            Forms
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ borderTop: 'none' }}>
-          <NavSection data={FormsList} />
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion disableGutters  sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit',  }}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-          sx={{ borderTop: 'none' }}
-        > <Typography
-            sx={{
-              color:"#161C24",
-              '&.active': {
-                color: 'text.primary',
-                bgcolor: 'action.selected',
-                fontWeight: 'fontWeightBold',
-              },
-            }}
-          ><IconButton aria-label="ExpandMoreIcon" >
-            <BackupTableIcon/>
-          </IconButton>
+          >
+            <IconButton aria-label="ExpandMoreIcon">
+              <BackupTableIcon />
+            </IconButton>
             Manage
           </Typography>
         </AccordionSummary>
@@ -175,24 +155,27 @@ export default function Nav({ openNav, onCloseNav }) {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion disableGutters  sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit',  }}>
+      <Accordion disableGutters sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit' }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
           id="panel1a-header"
           sx={{ borderTop: 'none' }}
-        > <Typography
+        >
+          {' '}
+          <Typography
             sx={{
-              color:"#161C24",
+              color: '#161C24',
               '&.active': {
                 color: 'text.primary',
                 bgcolor: 'action.selected',
                 fontWeight: 'fontWeightBold',
               },
             }}
-          ><IconButton aria-label="ExpandMoreIcon" >
-            <CreditScoreIcon/>
-          </IconButton>
+          >
+            <IconButton aria-label="ExpandMoreIcon">
+              <CreditScoreIcon />
+            </IconButton>
             Payment
           </Typography>
         </AccordionSummary>
@@ -200,7 +183,36 @@ export default function Nav({ openNav, onCloseNav }) {
           <NavSection data={Payment} />
         </AccordionDetails>
       </Accordion>
-      
+
+      <Accordion disableGutters sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit' }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+          sx={{ borderTop: 'none' }}
+        >
+          {' '}
+          <Typography
+            sx={{
+              color: '#161C24',
+              '&.active': {
+                color: 'text.primary',
+                bgcolor: 'action.selected',
+                fontWeight: 'fontWeightBold',
+              },
+            }}
+          >
+            <IconButton aria-label="ExpandMoreIcon">
+              <ChecklistRtlIcon />
+            </IconButton>
+            Forms
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ borderTop: 'none' }}>
+          <NavSection data={FormsList} />
+        </AccordionDetails>
+      </Accordion>
+
       <Box sx={{ flexGrow: 1 }} />
     </Scrollbar>
   );

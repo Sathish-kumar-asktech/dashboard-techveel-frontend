@@ -21,6 +21,7 @@ import {
   Snackbar,
   Alert,
   Autocomplete,
+  LinearProgress,
 } from '@mui/material';
 import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
@@ -75,6 +76,7 @@ const City = () => {
   const [stateData, setStateData] = useState([]);
   const [newCityName, setNewCityName] = useState('');
   const [selectedState, setSelectedState] = useState(null);
+  const [openLoader, setOpenLoader] = useState(false);
 
   // API Integration
   useEffect(() => {
@@ -84,11 +86,13 @@ const City = () => {
 
   // get all states Request
   const getStates = async () => {
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllState', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
       });
       setStateData(res.data);
+      setOpenLoader(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -96,11 +100,13 @@ const City = () => {
 
   // get all Cities Request
   const getCities = async () => {
+    setOpenLoader(true);
     try {
       const res = await axios.instance.get('/GetAllCity', {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
       });
       setcityData(res.data);
+      setOpenLoader(false);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -272,13 +278,11 @@ const City = () => {
         error = true;
         helperText = 'City already exists';
         setIsFormSubmitted(false);
-      }else if (operation === 'Edit' && isDataExistsinEDIt ) {
+      } else if (operation === 'Edit' && isDataExistsinEDIt) {
         error = true;
         helperText = 'City already exists';
         setIsFormSubmitted(false);
-      }
-       
-      else {
+      } else {
         setIsFormSubmitted(true); // Add this line when there are no errors for the city field
       }
     }
@@ -376,8 +380,7 @@ const City = () => {
           {alertMessage}
         </Alert>
       </Snackbar>
-
-      <Container sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
+      <Container maxWidth={"xl"} sx={{ mt: 2, pt: 4 }} elevation={3} component={Paper}>
         {/* table header */}
         <Typography variant="h6" color="primary" fontWeight={600} mb={2} textAlign="center" sx={{ color: '#616161' }}>
           City Master
@@ -462,7 +465,6 @@ const City = () => {
           mt={2}
         />
       </Container>
-
       <Grid m={2}>
         {/* add new popup form dialog box */}
         <Dialog fullScreen={fullScreen} open={open} onClose={handleClose} fullWidth>
@@ -477,23 +479,6 @@ const City = () => {
                 </IconButton>
               </Stack>
               <Stack direction={'column'} spacing={2} p={2}>
-                <TextField
-                  type="text"
-                  variant="outlined"
-                  color="primary"
-                  label="City"
-                  name="city"
-                  value={newCityName}
-                  onBlur={handleBlur}
-                  onChange={handleInputChange}
-                  fullWidth
-                  required
-                  size="small"
-                  error={errors.city}
-                  helperText={helperTexts.city}
-                  className={isFormSubmitted && errors.city ? 'shake-helper-text' : ''}
-                />
-
                 <Autocomplete
                   size="small"
                   name="state"
@@ -512,7 +497,23 @@ const City = () => {
                     {errors.state && helperTexts.state}
                   </Typography>
                 )}
-
+                <TextField
+                  type="text"
+                  variant="outlined"
+                  color="primary"
+                  label="City"
+                  name="city"
+                  value={newCityName}
+                  onBlur={handleBlur}
+                  onChange={handleInputChange}
+                  fullWidth
+                  required
+                  size="small"
+                  error={errors.city}
+                  helperText={helperTexts.city}
+                  className={isFormSubmitted && errors.city ? 'shake-helper-text' : ''}
+                />
+                
                 <Button
                   variant="contained"
                   size="small"
@@ -548,6 +549,15 @@ const City = () => {
           </DialogActions>
         </Dialog>
       </Grid>
+      {/* /* loader popup dialog box */}
+      <Dialog
+        open={openLoader}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
+      </Dialog>
     </>
   );
 };

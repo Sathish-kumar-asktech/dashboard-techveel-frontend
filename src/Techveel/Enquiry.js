@@ -43,6 +43,15 @@ const generateYearOptions = () => {
   return options;
 };
 
+const generateYearOptionsSchool = () => {
+  const currentYear = new Date().getFullYear();
+  const options = [];
+  for (let year = currentYear; year >= currentYear - 15; year -= 1) {
+    options.push(year.toString());
+  }
+  return options;
+};
+
 export default function Enquiry() {
   const { id } = useParams();
   console.log('from url', id);
@@ -115,6 +124,7 @@ export default function Enquiry() {
     lastName: false,
     fatherName: false,
     dob: false,
+    ageBelow18: false,
     gender: false,
     educationLevel: false,
     email: false,
@@ -393,6 +403,10 @@ export default function Enquiry() {
 
   // Updated form validation functions
   const validateBasicInfo = () => {
+    const currentDate = new Date();
+    const dobDate = new Date(dob);
+    const age = currentDate.getFullYear() - dobDate.getFullYear();
+
     const errors = {
       firstName: !nameRegex.test(firstName),
       lastName: !nameRegex.test(lastName),
@@ -403,6 +417,7 @@ export default function Enquiry() {
       educationLevel: educationLevel.trim() === '',
       contactNumber: !contactRegex.test(contactNumber),
       email: !emailRegex.test(email),
+      ageBelow18: age < 18,
     };
     setFieldErrors((prevFieldErrors) => ({ ...prevFieldErrors, ...errors }));
     // console.log(errors);
@@ -440,8 +455,8 @@ export default function Enquiry() {
       prefCourseCategory: !prefCourseCategory.Course_Category,
       prefTechnology: !prefTechnology.Course_Name,
       working: working.trim() === '',
-      industry: working === 'yes' && industry.trim() === '',
-      companyName: working === 'yes' && companyName.trim() === '',
+      industry: working === 'y' && industry.trim() === '',
+      companyName: working === 'y' && companyName.trim() === '',
     };
     setFieldErrors((prevFieldErrors) => ({ ...prevFieldErrors, ...errors }));
     return !Object.values(errors).some(Boolean);
@@ -580,7 +595,7 @@ export default function Enquiry() {
           {alertMessage}
         </Alert>
       </Snackbar>
-      <Container>
+      <Container maxWidth={'xl'}>
         <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
           <Box>
             <Link to="/dashboard/manage_enquiry">
@@ -715,14 +730,22 @@ export default function Enquiry() {
                               value={dob}
                               sx={{ pt: 2 }}
                               onChange={(e) => {
-                                setDob(e.target.value);
+                                const newDate = e.target.value;
+                                setDob(newDate);
+                                // setDob(e.target.value);
+                                const isValidDate = newDate.trim() !== '';
+                                const isAgeBelow18 = new Date(newDate) > calculateMaxDate();
                                 setFieldErrors((prevFieldErrors) => ({
                                   ...prevFieldErrors,
-                                  dob: !e.target.value.trim() === '',
+                                  dob: !isValidDate,
+                                  ageBelow18: isAgeBelow18,
                                 }));
                               }}
-                              error={fieldErrors.dob}
-                              helperText={fieldErrors.dob && 'Invalid date of birth'}
+                              error={fieldErrors.dob || fieldErrors.ageBelow18} // Update error condition
+                              helperText={
+                                (fieldErrors.dob && 'Invalid date of birth') ||
+                                (fieldErrors.ageBelow18 && 'Age must be 18 or above')
+                              }
                               InputLabelProps={{
                                 shrink: true,
                               }}
@@ -932,7 +955,7 @@ export default function Enquiry() {
                                     isOptionEqualToValue={(option, value) =>
                                       !!(option && option.value && value && value.value) && option.value === value.value
                                     }
-                                    options={generateYearOptions()}
+                                    options={generateYearOptionsSchool()}
                                     renderInput={(params) => <TextField {...params} label="Year of Passed Out" />}
                                     value={sslcYear}
                                     onChange={(e, newValue) => {
@@ -981,7 +1004,7 @@ export default function Enquiry() {
                                     isOptionEqualToValue={(option, value) =>
                                       !!(option && option.value && value && value.value) && option.value === value.value
                                     }
-                                    options={generateYearOptions()}
+                                    options={generateYearOptionsSchool()}
                                     renderInput={(params) => <TextField {...params} label="Year of Passed Out" />}
                                     value={hscYear}
                                     onChange={(e, newValue) => {
@@ -1267,7 +1290,7 @@ export default function Enquiry() {
                               </Typography>
                             )}
                           </FormControl>
-                          {working === 'yes' && (
+                          {working === 'y' && (
                             <>
                               <Stack direction={{ md: 'row', xs: 'column' }} spacing={3} my={1}>
                                 <TextField
@@ -1351,7 +1374,7 @@ export default function Enquiry() {
           </>
         ) : (
           <>
-            <DirectAdmission />
+            <DirectAdmission  />
           </>
         )}
       </Container>

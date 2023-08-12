@@ -12,18 +12,8 @@ const FormsList = [
     icon: icon('enquiry'),
   },
   {
-    title: 'Manage Enquiries',
-    path: '/dashboard/manage_enquiry',
-    icon: icon('enquiry'),
-  },
-  {
     title: 'Admission',
     path: '/dashboard/admission',
-    icon: icon('admission'),
-  },
-  {
-    title: 'Manage Students',
-    path: '/dashboard/manage_admission',
     icon: icon('admission'),
   },
   {
