@@ -15,7 +15,12 @@ const ManageList = [
     title: 'Manage Admission',
     path: '/dashboard/manage_admission',
     icon: icon('admission'),
-  }, 
+  },  
+  {
+    title: 'Manage Payments',
+    path: '/dashboard/manage_payment',
+    icon: icon('payment'),
+  },  
 ];
 
 

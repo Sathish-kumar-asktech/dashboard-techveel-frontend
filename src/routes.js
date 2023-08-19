@@ -13,7 +13,6 @@ import State from './ASK/Master/State';
 import College from './ASK/Master/College';
 import Enquiry from './Techveel/Enquiry';
 import PaymentUpdateForm from './Techveel/PaymentUpdateForm';
-import ManagePayment from './Techveel/ManagePayment';
 import TermsConditions from './ASK/Master/TermsConditions';
 import EducationStream from './ASK/Master/EducationStream';
 import CourseCategoryMaster from './ASK/Master/CourseCategory';
@@ -21,6 +20,8 @@ import CoursesMaster from './ASK/Master/Courses';
 import ManageEnquiriesTable from './Techveel/ManageEnquiries';
 import AdmissionForm from './Techveel/Admission';
 import ManageAdmissionTable from './Techveel/ManageAdmission';
+import ManagePayment from './Techveel/ManagePayment';
+import PaymentHistory from './Techveel/PaymentHistory';
 
 // ----------------------------------------------------------------------
 
@@ -50,8 +51,10 @@ export default function Router() {
         { path: 'manage_enquiry', element: <ManageEnquiriesTable /> },        
         { path: 'manage_students', element: <ManageEnquiriesTable /> },               
         { path: 'manage_admission', element: <ManageAdmissionTable /> },            
-        { path: 'payment', element: <PaymentUpdateForm /> },                    
-        { path: 'manage_payment', element: <ManagePayment /> },
+        { path: 'payment', element: <PaymentUpdateForm /> },                      
+        { path: 'payment/:id', element: <PaymentUpdateForm /> },                           
+        { path: 'manage_payment', element: <ManagePayment /> },      
+        { path: 'manage_paymnt_history/:id', element: <PaymentHistory /> },
       ],
     },
     {

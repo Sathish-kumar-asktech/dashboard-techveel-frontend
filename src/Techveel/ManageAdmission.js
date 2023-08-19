@@ -74,8 +74,6 @@ const ManageAdmissionTable = () => {
   );
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('xs'));
-  const [open, setOpen] = useState(false);
-  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   // handle snackbar & alert messages on save
   const [openAlert, setopenAlert] = useState(false);
   // At the beginning of the component
@@ -228,7 +226,7 @@ const ManageAdmissionTable = () => {
   const handleDownloadExcel = () => {
     // console.log(filteredData);
     const data = filteredData.map((enq) => ({
-      ID: enq.EnquiryId,
+      ID: enq.AdmissionId,
       FullName: `${enq.FirstName} ${enq.LastName}`,
       Phone: enq.PhoneNumber,
       Email: enq.Email,         
@@ -429,7 +427,7 @@ const ManageAdmissionTable = () => {
                     {page * rowsPerPage + index + 1}
                   </TableCell>
                   <TableCell align="center">
-                    {'TECH'}
+                    {'ADM'}
                     {enq.AdmissionId}
                   </TableCell>
                   <TableCell align="center" sx={{ textTransform: 'capitalize' }}>
@@ -489,6 +487,7 @@ const ManageAdmissionTable = () => {
                     {/* {enq.CreatedDate} */}
                     {formatDate(enq.CreatedDate)}
                   </TableCell>
+
                   <TableCell align="center" padding="normal" sx={{ padding: '0' }}>
                     <Link to={{ pathname: `/dashboard/admission/${enq.AdmissionId}` }}>
                       <IconButton aria-label="Edit">
@@ -499,6 +498,7 @@ const ManageAdmissionTable = () => {
                       <DeleteForeverIcon color="error" />
                     </IconButton>
                   </TableCell>
+                  
                 </TableRow>
               ))}
               {emptyRows > 0 && (

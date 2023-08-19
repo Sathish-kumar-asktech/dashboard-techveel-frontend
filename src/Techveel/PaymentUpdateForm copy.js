@@ -53,8 +53,7 @@ const PaymentUpdateForm = () => {
   const [balance, setBalance] = useState('');
   const [prevBalance, setPrevBalance] = useState('');
   const [balanceOnDate, setBalanceOnDate] = useState('');
-  const [paymentdate, setPaymentdate] = useState(new Date().toISOString().substr(0, 10));
-  // const [paymentdate, setPaymentdate] = useState('');
+  const [paymentdate, setPaymentdate] = useState('');
   const [remarks, setRemarks] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedStudentData, setSelectedStudentData] = useState(null);
@@ -97,15 +96,14 @@ const PaymentUpdateForm = () => {
         setAlertType('success');
         setAlertMessage('New Payment Added, Successfully!');
         setopenAlert(true);
+        setOpenLoader(false);
         setTimeout(() => {
           if (id) {
             navigate(`/dashboard/manage_paymnt_history/${id}`);
-            setOpenLoader(false);
           } else {
             navigate('/dashboard/manage_payment');
-            setOpenLoader(false);
           }
-        }, 2000);
+        }, 4000);
       } else {
         setAlertType('error');
         setAlertMessage("Oops! Can't add this data...");
@@ -136,8 +134,6 @@ const PaymentUpdateForm = () => {
       PayMode: paymentMode,
       PaymentDate: paymentdate,
       PaidAmount: paidFee,
-      prevBalance,
-      // prevBalance:prevBalance,
       BalanceOnDate: balanceOnDate,
       Remarks: remarks,
       CreatedBy: 86,
@@ -165,7 +161,6 @@ const PaymentUpdateForm = () => {
       setSelectedStudentData(null);
       setPaidFee('');
       setTotalFee('');
-      setBalance('');
     } else {
       setSelectedStudent(value);
       setPaidFee('');
@@ -209,13 +204,14 @@ const PaymentUpdateForm = () => {
         });
         const data = res.data;
         const selecteddata = data[0];
-        setSelectedStudentData(selecteddata);
-        setpayerAdmissionId(selecteddata.AdmissionId);
-        setTotalFee(selecteddata.NetAmount);        
         setBalance(selecteddata.NetAmount);
-        setPrevBalance(selecteddata.NetAmount);
+        setSelectedStudentData(data[0]);
+        setpayerAdmissionId(selectedStudentData.AdmissionId);
+        setTotalFee(selectedStudentData.NetAmount);        
+        setBalance(selectedStudentData.NetAmount);
+        setPrevBalance(selectedStudentData.NetAmount);
         if (paymentType === 'Full') {
-          setPaidFee(selecteddata.NetAmount);
+          setPaidFee(selectedStudentData.NetAmount);
           setBalanceOnDate(0);
         } else {
           setPaidFee('');
@@ -243,12 +239,10 @@ const PaymentUpdateForm = () => {
         });
         const data = res.data;
         const selecteddata = data[0];
-        setSelectedStudentData(selecteddata);
-        setPaymentType("Partial")
+        setSelectedStudentData(data[0]);
         setpayerAdmissionId(id ? selecteddata.Admissionid : selecteddata.AdmissionId);
         setTotalFee(selecteddata.NetAmount);
         setBalance(selecteddata.NetAmount - selecteddata.TotalPaidAmount);
-        setPrevBalance(selecteddata.NetAmount-selecteddata.TotalPaidAmount);
         console.log('balance', selecteddata.NetAmount - selecteddata.TotalPaidAmount);
         setOpenLoader(false);
       } catch (error) {
@@ -434,7 +428,7 @@ const PaymentUpdateForm = () => {
                   }}
                 >
                   <FormControlLabel value="Full" control={<Radio />} disabled={!!id} label="Full Payment" />
-                  <FormControlLabel value="Partial" control={<Radio />} SELEC label="Partial Payment" />
+                  <FormControlLabel value="Partial" control={<Radio />} label="Partial Payment" />
                 </RadioGroup>
               </FormControl>
               {fieldErrors.paymentType && (
@@ -565,9 +559,12 @@ const PaymentUpdateForm = () => {
                   onChange={(e) => {
                     const newDate = e.target.value;
                     setPaymentdate(newDate);
+
                     const currentDate = new Date();
                     const selectedDate = new Date(newDate);
+
                     const isValidDate = newDate.trim() !== '' && selectedDate <= currentDate;
+
                     setFieldErrors((prevFieldErrors) => ({
                       ...prevFieldErrors,
                       paymentdate: !isValidDate,

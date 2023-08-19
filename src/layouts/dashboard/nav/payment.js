@@ -17,11 +17,6 @@ const Payment = [
     path: '/dashboard/payment',
     icon: icon('payment'),
   },
-  {
-    title: 'Receipt',
-    path: '/dashboard/receipt',
-    icon: icon('receipt'),
-  },
 ];
 
 

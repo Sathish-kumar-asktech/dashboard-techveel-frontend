@@ -21,6 +21,11 @@ const FormsList = [
     path: '/dashboard/newadmission',
     icon: icon('admission'),
   },
+  {
+    title: 'Payment',
+    path: '/dashboard/payment',
+    icon: icon('payment'),
+  },
 ];
 
 export default FormsList;

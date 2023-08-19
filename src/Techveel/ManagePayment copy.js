@@ -20,16 +20,16 @@ import {
   DialogActions,
   Snackbar,
   Alert,
-  LinearProgress,
+  LinearProgress, ButtonGroup,
 } from '@mui/material';
 import * as XLSX from 'xlsx';
 import Slide from '@mui/material/Slide';
-import CallIcon from '@mui/icons-material/Call';
-import EmailIcon from '@mui/icons-material/Email';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import React, { useEffect, useState } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import styled from '@emotion/styled';
 import EditIcon from '@mui/icons-material/Edit';
+import AddCardIcon from '@mui/icons-material/AddCard';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import { Link, useNavigate } from 'react-router-dom';
@@ -41,11 +41,12 @@ import './animation.css';
 
 // table header cell styles
 const StyledTableCell = styled(TableCell)({
-  color: '#424242',
+  color: '#F1F6F9',
   fontWeight: '800',
   textAlign: 'center',
-  backgroundColor: '#e3f2fd',
+  backgroundColor: '#394867',
   padding: 'none',
+  whiteSpace: 'nowrap',
 });
 
 function formatDate(inputDateTime) {
@@ -65,7 +66,7 @@ function formatDate(inputDateTime) {
   return `${day}/${month}/${year} ${hour}:${minute} ${ampm}`;
 }
 
-const ManageEnquiriesTable = () => {
+const ManagePayment = () => {
   // eslint-disable-next-line no-restricted-globals
   const navigate = useNavigate();
   const [tokent, settokent] = useState(
@@ -73,22 +74,22 @@ const ManageEnquiriesTable = () => {
   );
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('xs'));
-  const [open, setOpen] = useState(false);
-  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  // handle snackbar & alert messages on save
-  const [openAlert, setopenAlert] = useState(false);
+ 
   // At the beginning of the component
   const [openDelete, setOpenDelete] = useState(false);
   const [stateIdToDelete, setStateIdToDelete] = useState(null);
-  const [enquiryData, setenquiryData] = useState([]);
+  const [PaymentsData, setPaymentsData] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
 
+   // handle snackbar & alert messages on save
+   const [openAlert, setopenAlert] = useState(false);
   // alert messages on operations
   const [alertType, setAlertType] = useState('success'); // 'success' or 'error'
   const [alertMessage, setAlertMessage] = useState('');
-  const [openLoader, setOpenLoader] = useState(false);
+  const [openLoader, setOpenLoader] = useState(false);  
+  const [openHistory, setOpenHistory] = useState(false);
 
   // get all states Request
   const formatDateToSend = (date) => {
@@ -115,7 +116,6 @@ const ManageEnquiriesTable = () => {
   const currentDate = new Date();
   const fromDateOnCurrentMonth = new Date(currentDate);
   fromDateOnCurrentMonth.setDate(1);
-  // const fromDateThirtyDaysAgo = new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000);
 
   // Convert fromDate and toDate objects to formatted date strings
   const initialFromDate = formatDateToinitialValues(fromDateOnCurrentMonth);
@@ -125,7 +125,7 @@ const ManageEnquiriesTable = () => {
   const [fromDate, setFromDate] = useState(initialFromDate);
   const [toDate, setToDate] = useState(initialToDate);
 
-  console.log('inital values:', fromDate, toDate);
+  // console.log('inital values:', fromDate, toDate);
   const handleFromDateChange = (event) => {
     setFromDate(event.target.value);
   };
@@ -136,11 +136,11 @@ const ManageEnquiriesTable = () => {
 
   // API Integration
   useEffect(() => {
-    getEnquiries();
+    getAllPayments();
     formatDateToinitialValues();
   }, []);
 
-  const getEnquiries = async () => {
+  const getAllPayments = async () => {
     setOpenLoader(true);
     try {
       // Convert fromDate and toDate strings to Date objects
@@ -152,7 +152,7 @@ const ManageEnquiriesTable = () => {
       const formattedToDate = formatDateToSend(toDateObj);
 
       const res = await axios.instance.post(
-        '/GetAllEnquiry',
+        '/GetAllPayments',
         {
           FromDate: formattedFromDate,
           ToDate: formattedToDate,
@@ -161,8 +161,8 @@ const ManageEnquiriesTable = () => {
           headers: { Authorization: tokent, 'Content-Type': 'application/json' },
         }
       );
-      setenquiryData(res.data);
-      console.log(res.data);
+      setPaymentsData(res.data);
+      console.log('PaymentsData: ', PaymentsData);
       console.log(formatDateToSend(fromDateObj));
       setOpenLoader(false);
     } catch (error) {
@@ -172,21 +172,21 @@ const ManageEnquiriesTable = () => {
   };
 
   // delete Request to delete state
-  const deleteEnquiry = async (enqId) => {
+  const deletePayments = async (payID) => {
     try {
       await axios.instance
-        .delete(`/deleteEnquiry/${enqId}`, {
+        .delete(`/deletePayments/${payID}`, {
           headers: { Authorization: tokent, 'Content-Type': 'application/json' },
         })
         .then((res) => {
           if (res.data === '') {
-            getEnquiries();
+            getAllPayments();
             setOpenDelete(false);
             setAlertType('warning');
-            setAlertMessage('Enquiry Deleted, Successfully!');
+            setAlertMessage('Admission Deleted, Successfully!');
             setopenAlert(true);
           } else {
-            getEnquiries();
+            getAllPayments();
             setOpenDelete(false);
             setAlertType('error');
             setAlertMessage("Oops! Can't delete this data. It's connected to other information.");
@@ -195,26 +195,26 @@ const ManageEnquiriesTable = () => {
           // console.log(res.data);
         });
     } catch (error) {
-      console.error('Error deleting Enquiry:', error);
+      console.error('Error deleting Admission:', error);
       setAlertType('error');
-      setAlertMessage('Failed to delete the Enquiry.');
+      setAlertMessage('Failed to delete the Admission.');
       setopenAlert(true);
     }
   };
 
-  // handleNewEnquiry
-  const handleNewEnquiry = () => {
-    navigate('/dashboard/enquiry', { state: { isEdit: false, enquiryData: null } });
+  // handleNewAdmission
+  const handleNewAdmission = () => {
+    navigate('/dashboard/payment', { state: { isEdit: false, PaymentsData: null } });
   };
 
   // handle delete popup dialog
-  const handleDelete = (enqId) => {
+  const handleDelete = (payID) => {
     setOpenDelete(true);
-    setStateIdToDelete(enqId);
+    setStateIdToDelete(payID);
   };
 
-  const handleDeleteConfirmed = (enqId) => {
-    deleteEnquiry(enqId);
+  const handleDeleteConfirmed = (payID) => {
+    deletePayments(payID);
   };
   const handleCloseDelete = () => {
     setOpenDelete(false);
@@ -225,50 +225,28 @@ const ManageEnquiriesTable = () => {
     setopenAlert(false);
   };
 
+
   // handleDownloadExcel
   const handleDownloadExcel = () => {
-    console.log('excel object enq:', filteredData);
-    const data = filteredData.map((enq, index) => ({
-      'S.No': index + 1,
-      "Enquiry ID": enq.EnquiryId,
-      Name: `${enq.FirstName} ${enq.LastName}`,
-      Phone: enq.PhoneNumber,
-      'Email ID': enq.Email,
-      City: enq.CityName,
-      'Course Category': enq.Course_Category,
-      Course: enq.Course_Name,
-      'Preferred Day': enq.PerferenceDay,
-      'Preferred Mode': enq.PerferenceMode,
-      'Preferred Timing': enq.PerferenceTiming,
-      'Enquiry Date': formatDate(enq.CreatedDate),
-      'College Name': enq.CollegeName,
-      'Degree Name': enq.DegreeName,
-      DOB: formatDate(enq.Dob),
-      Gender: enq.Gender === 'm' ? 'Male' : 'Female',
-      GraduationType: enq.GraduationType === 'ug' ? 'UG' : 'PG',
-      'UG %': enq.UGPer,
-      'UG Passed Out': enq.UGPassedOut,
-      'PG %': enq.PGPassedOut === "N/A" ? ' ' : enq.PGPer,
-      'PG Passed Out': enq.PGPassedOut === "N/A" ? ' ' : enq.PGPassedOut,
-      WorkingStatus: enq.WorkingStatus === 'n' ? 'No' : 'Yes',      
-      // SSLCPassedOut: enq.SslcPassedout,
-      // SSLCPercentage: enq.SslcPer,
-      // HSCPassedOut: enq.HscPassedout,
-      // HSCPercentage: enq.HscPer,
-      // WorkingCompany: enq.WorkingCompany,
-      // WorkingIndustry: enq.WorkingIndustry,
-      'Referrred By': enq.ReferenceBy,
-      'Ref. Contact Number': enq.ReferenceContactNumber,
+    const data = filteredData.map((pay) => ({
+      AdmissionNo : pay.Admissionid,
+      FullName: `${pay.FirstName} ${pay.LastName}`,      
+      Course_Category: pay.Course_Category,
+      Course_Name:pay.Course_Name,
+      Course_Fee:pay.Course_Fee,
+      Offrered_Fee: pay.NetAmount,
+      TotalPaidAmount: pay.TotalPaidAmount,
+      Balance: (pay.NetAmount - pay.TotalPaidAmount),
+      LastPaymentDate: formatDate(pay.LastPaymentDate),
     }));
-
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Enquiries');
-    XLSX.writeFile(workbook, `Enquiries Data-${formatDateToinitialValues(new Date())}.xlsx`);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Admission');
+    XLSX.writeFile(workbook, `PaymentsData+${currentDate}+.xlsx`);
   };
 
   // search & filter
-  const filteredData = enquiryData.filter((enq) => {
+  const filteredData = PaymentsData.filter((enq) => {
     const searchTermLowerCase = searchTerm.toLowerCase();
     return Object.values(enq).some((value) => {
       if (typeof value === 'string') {
@@ -277,14 +255,11 @@ const ManageEnquiriesTable = () => {
       return false;
     });
   });
-  // const filteredData = enquiryData.filter((c) => c.FirstName.toLowerCase().includes(searchTerm.toLowerCase()));
   // pagination
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, filteredData.length - page * rowsPerPage);
   const totalRows = filteredData.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage);
-  // const currentPage = Math.min(page, totalPages - 1);
-  const currentPage = Math.max(0, Math.min(page, totalPages - 1)); // Clamp to the range [0, totalPages - 1]
-  // Reset page to 0 when searchTerm changes
+  const currentPage = Math.max(0, Math.min(page, totalPages - 1));
   useEffect(() => {
     setPage(0);
   }, [searchTerm]);
@@ -309,14 +284,14 @@ const ManageEnquiriesTable = () => {
           variant="h5"
           p={1}
           boxShadow={1}
-          borderColor="#e8f5e9"
+          borderColor="#ACB1D6"
           textAlign={'center'}
           border={0.5}
           borderRadius={1}
           my={2}
-          color="#004d40"
+          color="#394867"
         >
-          Manage Enquiries
+          Manage Payments
         </Typography>
 
         {/* search & add button */}
@@ -350,11 +325,11 @@ const ManageEnquiriesTable = () => {
                 shrink: true,
               }}
             />
-            <IconButton color="info" onClick={getEnquiries}>
+            <IconButton color="primary" onClick={getAllPayments}>
               <PendingActionsIcon />
             </IconButton>
           </Stack>
-          <Stack direction={'row'} spacing={1} alignItems={'center'}>
+          <Stack direction={'row'} spacing={2} alignItems={'center'}>
             <TextField
               type="text"
               variant="outlined"
@@ -377,11 +352,11 @@ const ManageEnquiriesTable = () => {
             <Button
               variant="contained"
               color="primary"
-              sx={{ boxShadow: 1 }}
-              onClick={handleNewEnquiry}
-              endIcon={<ContactSupportIcon />}
+              sx={{ borderRadius: 2, boxShadow: 1, whiteSpace: 'nowrap' }}
+              onClick={handleNewAdmission}
+              endIcon={<AddCardIcon />}
             >
-              New Enquiry
+              New Payment
             </Button>
           </Stack>
         </Stack>
@@ -392,84 +367,128 @@ const ManageEnquiriesTable = () => {
             <TableHead>
               <TableRow sx={{ padding: 'none' }}>
                 <StyledTableCell>S.No</StyledTableCell>
-                <StyledTableCell>ID</StyledTableCell>
+                <StyledTableCell>Admission ID</StyledTableCell>
                 <StyledTableCell>Full Name</StyledTableCell>
-                <StyledTableCell>Phone</StyledTableCell>
-                <StyledTableCell>Email</StyledTableCell>
                 <StyledTableCell>Course Category</StyledTableCell>
                 <StyledTableCell>Course</StyledTableCell>
-                <StyledTableCell>Enquiry Date</StyledTableCell>
-                <StyledTableCell>Actions</StyledTableCell>
+                <StyledTableCell>Course Fee</StyledTableCell>                
+                <StyledTableCell>Paid Fee</StyledTableCell>
+                {/* <StyledTableCell>Balance to be paid</StyledTableCell> */}
+                <StyledTableCell>Status</StyledTableCell>
+                <StyledTableCell>Last payment date</StyledTableCell>
+                <StyledTableCell>Payment History</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {(rowsPerPage > 0
                 ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 : filteredData
-              ).map((enq, index) => (
-                <TableRow key={enq.EnquiryId} hover>
+              ).map((pay, index) => (
+                <TableRow key={pay.Admissionid} >
                   <TableCell align="center" padding="none">
                     {page * rowsPerPage + index + 1}
                   </TableCell>
                   <TableCell align="center">
-                    {'TECH'}
-                    {enq.EnquiryId}
+                    {'ADM'}
+                    {pay.Admissionid}
                   </TableCell>
                   <TableCell align="center" sx={{ textTransform: 'capitalize' }}>
-                    {enq.FirstName} {enq.LastName}
+                    {pay.FirstName} {pay.LastName}
                   </TableCell>
 
-                  <TableCell align="center" padding="none" sx={{ textTransform: 'capitalize', color: 'inherit' }}>
-                    <Button
-                      component="a"
-                      variant="text"
-                      title="Click to Call"
-                      href={`tel:${+91}${enq.PhoneNumber}`}
-                      sx={{ color: 'inherit', fontWeight: 400 }}
-                      startIcon={<CallIcon color="success" />}
-                    >
-                      {enq.PhoneNumber}
-                    </Button>
+                  <TableCell align="center" padding="normal" sx={{ textTransform: 'capitalize', whiteSpace: 'nowrap' }}>
+                    {pay.Course_Category}
                   </TableCell>
 
-                  <TableCell align="center" padding="none" sx={{ textTransform: 'capitalize', color: 'inherit' }}>
-                    <Button
-                      component="a"
-                      variant="text"
-                      color="inherit"
-                      title="Click to Mail"
-                      href={`mailto:${enq.Email}`}
-                      sx={{ fontWeight: 400, color: 'inherit', textTransform: 'lowercase' }}
-                      startIcon={<EmailIcon color="error" />}
-                    >
-                      {enq.Email}
-                    </Button>
+                  <TableCell
+                    align="center"
+                    padding="normal"
+                    sx={{
+                      textTransform: 'capitalize',
+                      // whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {pay.Course_Name}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    padding="normal"
+                    sx={{
+                      textTransform: 'capitalize',
+                      color: 'green',
+                      fontWeight: 600,
+                    }}
+                  >
+                    ₹ {pay.NetAmount}
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    padding="normal"
+                    sx={{
+                      textTransform: 'capitalize',
+                      color: 'green',
+                      fontWeight: 600,
+                    }}
+                  >
+                    ₹ {pay.TotalPaidAmount}
+                  </TableCell>
+                  {/* <TableCell
+                    align="center"
+                    padding="normal"
+                    sx={{
+                      color: '#FF8B13',
+                      fontWeight: 600,
+                    }}
+                  >
+                    ₹ {pay.NetAmount - pay.TotalPaidAmount}
+                  </TableCell> */}
+                  <TableCell
+                    align="center"
+                    padding="normal"
+                    sx={{
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {pay.NetAmount - pay.TotalPaidAmount <= 0 ? (
+                      <Button size='small' variant="outlined" color="success" sx={{ whiteSpace: 'nowrap', cursor: 'auto' }}>
+                        Fully Paid
+                      </Button>
+                    ) : (
+                      <Button size='small' variant="outlined" color="warning" sx={{ whiteSpace: 'nowrap', cursor: 'auto', color:'#F29727'}}>
+                        ₹ {pay.NetAmount - pay.TotalPaidAmount} Balance
+                      </Button>
+                    )}
                   </TableCell>
 
-                  <TableCell align="center" padding="normal" sx={{ textTransform: 'capitalize' }}>
-                    {enq.Course_Category}
+                  <TableCell
+                    align="center"
+                    padding="normal"
+                    sx={{
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {/* {pay.CreatedDate} */}
+                    {formatDate(pay.LastPaymentDate)}
                   </TableCell>
-                  <TableCell align="center" padding="normal" sx={{ textTransform: 'capitalize' }}>
-                    {enq.Course_Name}
-                  </TableCell>
-                  <TableCell align="center" padding="normal" sx={{ textTransform: 'capitalize' }}>
-                    {formatDate(enq.CreatedDate)}
-                  </TableCell>
+
                   <TableCell align="center" padding="normal" sx={{ padding: '0' }}>
-                    <Link to={{ pathname: `/dashboard/enquiry/${enq.EnquiryId}` }}>
-                      <IconButton aria-label="Edit">
+                    <Link to={{ pathname: `/dashboard/manage_paymnt_history/${pay.Admissionid}` }}>
+                      <Button  size={'small'} variant="outlined" color="secondary" startIcon={<MenuOpenIcon/>}>
+                        View
+                      </Button>
+                      {/* <IconButton aria-label="Edit">
                         <EditIcon color="primary" />
-                      </IconButton>
+                      </IconButton> */}
                     </Link>
-                    <IconButton aria-label="Delete" onClick={() => handleDelete(enq.EnquiryId)}>
+                    {/* <IconButton aria-label="Delete" onClick={() => handleDelete(pay.PaymentId)}>
                       <DeleteForeverIcon color="error" />
-                    </IconButton>
+                    </IconButton> */}
                   </TableCell>
                 </TableRow>
               ))}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={8} />
+                  <TableCell colSpan={10} />
                 </TableRow>
               )}
             </TableBody>
@@ -524,8 +543,17 @@ const ManageEnquiriesTable = () => {
       >
         <LinearProgress />
       </Dialog>
+
+      <Dialog
+        open={openHistory}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+      >
+        <LinearProgress />
+      </Dialog>
     </>
   );
 };
 
-export default ManageEnquiriesTable;
+export default ManagePayment;

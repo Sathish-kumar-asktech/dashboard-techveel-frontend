@@ -34,7 +34,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import JsPDF from 'jspdf';
 import axios from '../axios';
 
 const useStyles = styled((theme) => ({
@@ -75,6 +74,16 @@ const generateYearOptionsSchool = () => {
   }
   return options;
 };
+
+function formatDate(inputDate) {
+  const date = new Date(inputDate);
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
 
 export default function AdmissionForm() {
   const { id } = useParams();
@@ -221,7 +230,7 @@ export default function AdmissionForm() {
     }
 
     if (selectedPreviewFile) {
-      console.log("selectedPreviewFile: ", selectedPreviewFile);
+      console.log('selectedPreviewFile: ', selectedPreviewFile);
       setSelectedPreviewFile(selectedPreviewFile);
       setOpenPreview(true);
     }
@@ -934,9 +943,8 @@ export default function AdmissionForm() {
       return;
     }
     const formData = new FormData();
-    if(id)
-    {
-    formData.append('AdmissionId', id);
+    if (id) {
+      formData.append('AdmissionId', id);
     }
     formData.append('FirstName', firstName);
     formData.append('LastName', lastName);
@@ -978,10 +986,9 @@ export default function AdmissionForm() {
     formData.append('DiscountAmount', discount);
     formData.append('NetAmount', finalFee);
     formData.append(!id ? 'CreatedBy' : 'Modifyby', 86);
-    if(alreadyEnquired)
-    {
-    formData.append('EnquiryId', selectedEnquiryID.EnquiryId);
-    }
+
+    formData.append('EnquiryId', alreadyEnquired === 'y' ? selectedEnquiryID.EnquiryId : 0);
+
     if (!id) {
       addNewAdmission(formData);
     } else {
@@ -1063,7 +1070,7 @@ export default function AdmissionForm() {
             my={1}
             p={1}
           >
-            <FormLabel  component="legend" sx={{ fontWeight: 600, whiteSpace: 'nowrap', color: '#009688' }}>
+            <FormLabel component="legend" sx={{ fontWeight: 600, whiteSpace: 'nowrap', color: '#009688' }}>
               Have you Previously made an Enquiry?
             </FormLabel>
             <FormControl size="small" component="fieldset">
@@ -1090,13 +1097,15 @@ export default function AdmissionForm() {
           </Stack>
         </Stack>
         {alreadyEnquired === 'y' && (
-          <FormControl fullWidth size="small"  component="fieldset" required>
+          <FormControl fullWidth size="small" component="fieldset" required>
             <Autocomplete
               size="small"
-              
               options={enquiryData}
               getOptionLabel={(enq) =>
-                enq ? `Enquiry ID:${enq.EnquiryId} & Full Name: ${enq.FirstName} ${enq.LastName}` : ''
+                enq
+                  ? `Enquiry ID - ${enq.EnquiryId} - ${formatDate(enq.CreatedDate)} - ${enq.FirstName} ${enq.LastName} `
+                  : // `Enquiry ID - ${enq.EnquiryId} & Full Name: ${enq.FirstName} ${enq.LastName}`
+                    ''
               }
               isOptionEqualToValue={(option, value) => option.EnquiryId === value?.EnquiryId}
               // isOptionEqualToValue={((option, value) => option.EnquiryId === value.EnquiryId) ?? undefined}
@@ -1104,8 +1113,8 @@ export default function AdmissionForm() {
               value={selectedEnquiryID}
               onChange={(e, newValue) => {
                 if (newValue === null) {
-                  resetFields(); 
-                  setselectedEnquiryID(null); 
+                  resetFields();
+                  setselectedEnquiryID(null);
                 } else {
                   setselectedEnquiryID(newValue);
                   setFieldErrors((prevFieldErrors) => ({
@@ -1610,7 +1619,7 @@ export default function AdmissionForm() {
                       <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
                       <Box sx={{ display: 'flex', flexDirection: 'column', pt: 2 }}>
                         <Typography variant="h6" color="#0288d1" sx={{ py: 1 }}>
-                          Communication Address :
+                        Residential Address :
                         </Typography>
                         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} my={1}>
                           <TextField
@@ -1945,14 +1954,14 @@ export default function AdmissionForm() {
                             )}
                           </Grid>
                           {/* Dialog for previewing the selected file */}
-                          <Dialog  open={openPreview} onClose={handleClosePreview}>
+                          <Dialog open={openPreview} onClose={handleClosePreview}>
                             <DialogTitle>File Preview</DialogTitle>
-                            <DialogContent >
+                            <DialogContent>
                               {selectedPreviewFile ? (
                                 // Check if the selected file is an image file
                                 isImageFile(selectedPreviewFile) ? (
                                   // If it's an image, render the image preview
-                                  <img                                   
+                                  <img
                                     src={selectedPreviewFile}
                                     // src={URL.createObjectURL(selectedPreviewFile)}
                                     alt="Preview"
