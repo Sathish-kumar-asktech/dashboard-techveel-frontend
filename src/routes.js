@@ -22,6 +22,9 @@ import AdmissionForm from './Techveel/Admission';
 import ManageAdmissionTable from './Techveel/ManageAdmission';
 import ManagePayment from './Techveel/ManagePayment';
 import PaymentHistory from './Techveel/PaymentHistory';
+import AdmissionReports from './MisReports/AdmissionReports';
+import EnquiriesReports from './MisReports/EnquiriesReports';
+import PaymentReports from './MisReports/PaymentReports';
 
 // ----------------------------------------------------------------------
 
@@ -38,23 +41,26 @@ export default function Router() {
         { path: 'blog', element: <BlogPage /> },
         { path: 'city', element: <City /> },
         { path: 'state', element: <State /> },
-        { path: 'college', element: <College /> },  
-        { path: 'degree', element: <EducationStream /> }, 
-        { path: 'coursescategory', element: <CourseCategoryMaster /> },    
-        { path: 'courses', element: <CoursesMaster /> },                 
-        { path: 'terms&conditions', element: <TermsConditions /> },                         
-        { path: 'enquiry', element: <Enquiry /> },                                
+        { path: 'college', element: <College /> },
+        { path: 'degree', element: <EducationStream /> },
+        { path: 'coursescategory', element: <CourseCategoryMaster /> },
+        { path: 'courses', element: <CoursesMaster /> },
+        { path: 'terms&conditions', element: <TermsConditions /> },
+        { path: 'enquiry', element: <Enquiry /> },
         { path: 'enquiry/:id', element: <Enquiry /> },
         { path: 'admission', element: <AdmissionForm /> },
         { path: 'admission/:id', element: <AdmissionForm /> },
         { path: 'newadmission', element: <AdmissionForm /> },
-        { path: 'manage_enquiry', element: <ManageEnquiriesTable /> },        
-        { path: 'manage_students', element: <ManageEnquiriesTable /> },               
-        { path: 'manage_admission', element: <ManageAdmissionTable /> },            
-        { path: 'payment', element: <PaymentUpdateForm /> },                      
-        { path: 'payment/:id', element: <PaymentUpdateForm /> },                           
-        { path: 'manage_payment', element: <ManagePayment /> },      
+        { path: 'manage_enquiry', element: <ManageEnquiriesTable /> },
+        { path: 'manage_students', element: <ManageEnquiriesTable /> },
+        { path: 'manage_admission', element: <ManageAdmissionTable /> },
+        { path: 'payment', element: <PaymentUpdateForm /> },
+        { path: 'payment/:id', element: <PaymentUpdateForm /> },
+        { path: 'manage_payment', element: <ManagePayment /> },
         { path: 'manage_paymnt_history/:id', element: <PaymentHistory /> },
+        { path: 'mis/admission_report', element: <AdmissionReports /> },
+        { path: 'mis/enquiry_report', element: <EnquiriesReports /> },
+        { path: 'mis/payments_report', element: <PaymentReports /> },
       ],
     },
     {

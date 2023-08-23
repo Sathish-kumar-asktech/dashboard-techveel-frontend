@@ -230,7 +230,7 @@ const ManageEnquiriesTable = () => {
     console.log('excel object enq:', filteredData);
     const data = filteredData.map((enq, index) => ({
       'S.No': index + 1,
-      "Enquiry ID": enq.EnquiryId,
+      'Enquiry ID': enq.EnquiryId,
       Name: `${enq.FirstName} ${enq.LastName}`,
       Phone: enq.PhoneNumber,
       'Email ID': enq.Email,
@@ -248,9 +248,9 @@ const ManageEnquiriesTable = () => {
       GraduationType: enq.GraduationType === 'ug' ? 'UG' : 'PG',
       'UG %': enq.UGPer,
       'UG Passed Out': enq.UGPassedOut,
-      'PG %': enq.PGPassedOut === "N/A" ? ' ' : enq.PGPer,
-      'PG Passed Out': enq.PGPassedOut === "N/A" ? ' ' : enq.PGPassedOut,
-      WorkingStatus: enq.WorkingStatus === 'n' ? 'No' : 'Yes',      
+      'PG %': enq.PGPassedOut === 'N/A' ? ' ' : enq.PGPer,
+      'PG Passed Out': enq.PGPassedOut === 'N/A' ? ' ' : enq.PGPassedOut,
+      WorkingStatus: enq.WorkingStatus === 'n' ? 'No' : 'Yes',
       // SSLCPassedOut: enq.SslcPassedout,
       // SSLCPercentage: enq.SslcPer,
       // HSCPassedOut: enq.HscPassedout,

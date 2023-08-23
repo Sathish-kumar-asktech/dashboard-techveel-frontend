@@ -100,6 +100,7 @@ const ManageAdmissionTable = () => {
     return `${year}${month}${day}`;
   };
 
+  
   const formatDateToinitialValues = (date) => {
     if (!date) {
       return ''; // Handle null or empty date

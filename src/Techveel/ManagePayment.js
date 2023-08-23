@@ -25,17 +25,16 @@ import {
 import * as XLSX from 'xlsx';
 import Slide from '@mui/material/Slide';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import JsPDF from 'jspdf';
+import 'jspdf-autotable'; 
 import React, { useEffect, useState } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import styled from '@emotion/styled';
-import EditIcon from '@mui/icons-material/Edit';
 import AddCardIcon from '@mui/icons-material/AddCard';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import { Link, useNavigate } from 'react-router-dom';
-// import { useHistory } from "react-router-dom";
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
-import ContactSupportIcon from '@mui/icons-material/ContactSupport';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import axios from '../axios';
 import './animation.css';
 
@@ -88,8 +87,7 @@ const ManagePayment = () => {
   // alert messages on operations
   const [alertType, setAlertType] = useState('success'); // 'success' or 'error'
   const [alertMessage, setAlertMessage] = useState('');
-  const [openLoader, setOpenLoader] = useState(false);  
-  const [openHistory, setOpenHistory] = useState(false);
+  const [openLoader, setOpenLoader] = useState(false); 
 
   // get all states Request
   const formatDateToSend = (date) => {
@@ -207,12 +205,6 @@ const ManagePayment = () => {
     navigate('/dashboard/payment', { state: { isEdit: false, PaymentsData: null } });
   };
 
-  // handle delete popup dialog
-  const handleDelete = (payID) => {
-    setOpenDelete(true);
-    setStateIdToDelete(payID);
-  };
-
   const handleDeleteConfirmed = (payID) => {
     deletePayments(payID);
   };
@@ -243,6 +235,47 @@ const ManagePayment = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Admission');
     XLSX.writeFile(workbook, `PaymentsData+${currentDate}+.xlsx`);
+  };
+
+  // handleDownloadPDF
+  const handleDownloadPDF = () => {
+    const doc = new JsPDF();
+
+    // Define column headers for the PDF table
+    const headers = [
+      'S.No',
+      'Admission No',
+      'Full Name',
+      'Course Category',
+      'Course Name',
+      'Course Fee',
+      'Offered Fee',
+      'Total Paid Amount',
+      'Balance',
+      'Last Payment Date',
+    ];
+  
+    const data = filteredData.map((pay, index) => [
+      index+1,
+      pay.Admissionid,
+      `${pay.FirstName} ${pay.LastName}`,
+      pay.Course_Category,
+      pay.Course_Name,
+      pay.Course_Fee,
+      pay.NetAmount,
+      pay.TotalPaidAmount,
+      pay.NetAmount - pay.TotalPaidAmount,
+      formatDate(pay.LastPaymentDate),
+    ]);
+  
+    // Add table to the PDF document
+    doc.autoTable({
+      head: [headers],
+      body: data,
+    });
+  
+    // Save the PDF with a specific filename
+    doc.save(`PaymentsData_${currentDate}.pdf`);
   };
 
   // search & filter
@@ -347,7 +380,16 @@ const ManagePayment = () => {
               title="Download as excel"
               sx={{ color: 'white' }}
             >
-              Download
+              Excel
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<PictureAsPdfIcon />}
+              onClick={handleDownloadPDF}
+              color="error"
+              title="Download as excel"
+            >
+              PDF
             </Button>
             <Button
               variant="contained"
@@ -538,15 +580,6 @@ const ManagePayment = () => {
       {/* loader popup dialog box */}
       <Dialog
         open={openLoader}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        fullWidth
-      >
-        <LinearProgress />
-      </Dialog>
-
-      <Dialog
-        open={openHistory}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
         fullWidth

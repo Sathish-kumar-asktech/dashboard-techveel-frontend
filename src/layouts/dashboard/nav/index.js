@@ -21,6 +21,7 @@ import PlaylistAddCircleIcon from '@mui/icons-material/PlaylistAddCircle';
 import ChecklistRtlIcon from '@mui/icons-material/ChecklistRtl';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import BackupTableIcon from '@mui/icons-material/BackupTable';
+import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
 
 // mock
 import account from '../../../_mock/account';
@@ -36,6 +37,7 @@ import Master from './config2';
 import FormsList from './formsData';
 import Payment from './payment';
 import ManageList from './manageList';
+import misData from './misData';
 
 // ----------------------------------------------------------------------
 
@@ -210,6 +212,34 @@ export default function Nav({ openNav, onCloseNav }) {
         </AccordionSummary>
         <AccordionDetails sx={{ borderTop: 'none' }}>
           <NavSection data={FormsList} />
+        </AccordionDetails>
+      </Accordion>
+      <Accordion disableGutters sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit' }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+          sx={{ borderTop: 'none' }}
+        >
+          {' '}
+          <Typography
+            sx={{
+              color: '#161C24',
+              '&.active': {
+                color: 'text.primary',
+                bgcolor: 'action.selected',
+                fontWeight: 'fontWeightBold',
+              },
+            }}
+          >
+            <IconButton aria-label="ExpandMoreIcon">
+              <TableChartOutlinedIcon />
+            </IconButton>
+            MIS
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ borderTop: 'none' }}>
+          <NavSection data={misData} />
         </AccordionDetails>
       </Accordion>
 
