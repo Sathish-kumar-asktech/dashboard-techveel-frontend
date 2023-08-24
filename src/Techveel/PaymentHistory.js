@@ -38,6 +38,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import './animation.css';
+import { saveAs } from 'file-saver';
 import axios from '../axios';
 
 // table header cell styles
@@ -83,7 +84,7 @@ const PaymentHistory = () => {
   const [PaymentsHistoryData, setPaymentsHistoryData] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [searchTerm, setSearchTerm] = useState('');  
+  const [searchTerm, setSearchTerm] = useState('');
   const [maxEditable, setmaxEditable] = useState('');
 
   // handle snackbar & alert messages on save
@@ -108,7 +109,6 @@ const PaymentHistory = () => {
   const [balanceOnDate, setBalanceOnDate] = useState('');
 
   const today = new Date().toISOString().split('T')[0];
-
 
   // API Integration
   useEffect(() => {
@@ -297,7 +297,7 @@ const PaymentHistory = () => {
     setPaidFee(pay.PaidAmount);
     setPrevBalance(pay.prevBalance);
     setmaxEditable(pay.NetAmount - pay.TotalPaidAmount + pay.PaidAmount);
-    console.log("setmaxEditable: ",pay.NetAmount - pay.TotalPaidAmount + pay.PaidAmount );
+    console.log('setmaxEditable: ', pay.NetAmount - pay.TotalPaidAmount + pay.PaidAmount);
     console.log('setPrevBalance now', pay.prevBalance);
     const formattedDob = new Date(pay.PaymentDate).toISOString().substr(0, 10);
     setPaymentdate(formattedDob);
@@ -327,6 +327,22 @@ const PaymentHistory = () => {
   useEffect(() => {
     setPage(0);
   }, [searchTerm]);
+
+  const GetPaymentPrint = async (id) => {
+    console.log(id);
+    setOpenLoader(true);
+    const Print = await axios.instance
+      .get(`/GetPaymentPrint/${id}`, { headers: { Authorization: tokent, 'Content-Type': 'application/json' } })
+      .then(async (res) => {
+        const downloadprogress = await axios.instance
+          .get('/GetPaymentReceipt', { responseType: 'blob' })
+          .then((res) => {
+            const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+            saveAs(pdfBlob, 'PaymentReceipt.pdf');
+          });
+          setOpenLoader(false);
+      });
+  };
 
   return (
     <>
@@ -510,7 +526,7 @@ const PaymentHistory = () => {
                   <StyledTableCell>Full Name</StyledTableCell>
                   <StyledTableCell>Remarks</StyledTableCell>
                   <StyledTableCell>Payment Mode</StyledTableCell>
-                  <StyledTableCell>Course Fee</StyledTableCell>                  
+                  <StyledTableCell>Course Fee</StyledTableCell>
                   {/* <StyledTableCell>Before Balance</StyledTableCell> */}
                   <StyledTableCell>Paid Fee</StyledTableCell>
                   <StyledTableCell>Balance on Date</StyledTableCell>
@@ -619,6 +635,10 @@ const PaymentHistory = () => {
                         color="secondary"
                         sx={{ whiteSpace: 'nowrap', cursor: 'auto', color: '#4C4C6D' }}
                         startIcon={<PrintIcon />}
+                        onClick={() => {
+                          GetPaymentPrint(pay.PaymentId);
+                          console.log(pay.PaymentId);
+                        }}
                       >
                         Print
                       </Button>
