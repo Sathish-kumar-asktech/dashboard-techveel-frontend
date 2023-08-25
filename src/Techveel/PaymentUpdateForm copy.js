@@ -130,35 +130,34 @@ const PaymentUpdateForm = () => {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    // console.log(validateErrors);
     if (!validateErrors()) {
       return;
     }
     console.log('paymentdate: ', paymentdate);
-
-    // Assuming paymentdate is a valid JavaScript Date object
+    // Truncate seconds and milliseconds from the PaymentDate
     const truncatedPaymentDate = new Date(paymentdate);
     truncatedPaymentDate.setSeconds(0);
     truncatedPaymentDate.setMilliseconds(0);
 
-    // Format the payment date using moment
-    const utcPaymentDate = moment.utc(paymentdate).format('YYYY-MM-DD HH:mm:ss');
+    // const formattedPaymentDate = truncatedPaymentDate.toISOString();
 
-    // const formattedPaymentDate = moment.utc(truncatedPaymentDate).format('YYYY-MM-DD HH:mm:ss');
+    // const formattedPaymentDate = new Date(truncatedPaymentDate).toISOString();
 
-    console.log('formattedPaymentDate: ', utcPaymentDate);
+    // const formattedPaymentDate = truncatedPaymentDate.toISOString().replace('T', ' ').slice(0, 19);
+
+    console.log('formattedPaymentDate : ', truncatedPaymentDate);
     const PayData = {
       Admissionid: payerAdmissionId,
       PayType: paymentType,
       PayMode: paymentMode,
-      PaymentDate: utcPaymentDate, 
+      PaymentDate: moment(paymentdate).format('YYYY-MM-DD HH:mm:ss'),
       PaidAmount: paidFee,
       prevBalance,
       BalanceOnDate: balanceOnDate,
       Remarks: remarks,
       CreatedBy: 86,
     };
-
     console.log('Submitted Data', PayData, 'ID: ', id);
     addNewPayment(PayData);
   };
