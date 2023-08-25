@@ -54,9 +54,6 @@ const PaymentUpdateForm = () => {
   const [balance, setBalance] = useState('');
   const [prevBalance, setPrevBalance] = useState('');
   const [balanceOnDate, setBalanceOnDate] = useState('');
-  // const [paymentdate, setPaymentdate] = useState(new Date().toISOString().substr(0, 10));
-  // const [paymentdate, setPaymentdate] = useState(new Date().toISOString().substr(0, 16));
-  // const [paymentdate, setPaymentdate] = useState('');
   const [paymentdate, setPaymentdate] = useState(
     new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().substr(0, 16)
   );
@@ -136,15 +133,8 @@ const PaymentUpdateForm = () => {
     }
     console.log('paymentdate: ', paymentdate);
 
-    // Assuming paymentdate is a valid JavaScript Date object
-    const truncatedPaymentDate = new Date(paymentdate);
-    truncatedPaymentDate.setSeconds(0);
-    truncatedPaymentDate.setMilliseconds(0);
-
     // Format the payment date using moment
     const utcPaymentDate = moment.utc(paymentdate).format('YYYY-MM-DD HH:mm:ss');
-
-    // const formattedPaymentDate = moment.utc(truncatedPaymentDate).format('YYYY-MM-DD HH:mm:ss');
 
     console.log('formattedPaymentDate: ', utcPaymentDate);
     const PayData = {
@@ -489,40 +479,44 @@ const PaymentUpdateForm = () => {
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} my={1}>
               <TextField size="small" label="Total Fee" type="number" fullWidth value={totalFee} disabled />
               <TextField
-                size="small"
-                fullWidth
-                label="Payment Date"
-                type="date"
-                value={paymentdate}
-                onChange={(e) => {
-                  const newDate = e.target.value;
-                  setPaymentdate(newDate);
+                  size="small"
+                  fullWidth
+                  label="Payment Date"
+                  type="datetime-local"
+                  value={paymentdate}
+                  onChange={(e) => {
+                    const localDate = new Date(`${e.target.value}Z`);
+                    const offsetMinutes = localDate.getTimezoneOffset();
+                    const adjustedDate = new Date(localDate.getTime() + offsetMinutes * 60000);
+                    const newDate = adjustedDate.toISOString().substr(0, 16);
 
-                  const currentDate = new Date();
-                  const selectedDate = new Date(newDate);
+                    setPaymentdate(newDate);
 
-                  const isValidDate = newDate.trim() !== '' && selectedDate <= currentDate;
+                    const currentDate = new Date();
+                    const selectedDate = new Date(newDate);
+                    const isValidDate = newDate.trim() !== '' && selectedDate <= currentDate;
 
-                  setFieldErrors((prevFieldErrors) => ({
-                    ...prevFieldErrors,
-                    paymentdate: !isValidDate,
-                  }));
-                }}
-                error={fieldErrors.paymentdate}
-                helperText={
-                  fieldErrors.paymentdate
-                    ? fieldErrors.paymentdate && new Date(paymentdate) > new Date()
-                      ? 'Payment date should not be in the future'
-                      : 'Payment date is required'
-                    : ''
-                }
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                inputProps={{
-                  max: today,
-                }}
-              />
+                    setFieldErrors((prevFieldErrors) => ({
+                      ...prevFieldErrors,
+                      paymentdate: !isValidDate,
+                    }));
+                  }}
+                  error={fieldErrors.paymentdate}
+                  helperText={
+                    fieldErrors.paymentdate
+                      ? fieldErrors.paymentdate && new Date(paymentdate) > new Date()
+                        ? 'Payment date and time should not be in the future'
+                        : 'Payment date and time is required'
+                      : ''
+                  }
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    max: today,
+                  }}
+                />
+
               {/* <TextField
                 size="small"
                 fullWidth
@@ -557,7 +551,7 @@ const PaymentUpdateForm = () => {
                 inputProps={{
                   max: today,
                 }}
-              /> */}
+              /> */}              
             </Stack>
           )}
           {paymentType === 'Partial' && (
@@ -646,44 +640,6 @@ const PaymentUpdateForm = () => {
                   }}
                 />
 
-                {/* <TextField
-                  size="small"
-                  fullWidth
-                  label="Payment Date"
-                  type="datetime-local"
-                  value={paymentdate}
-                  onChange={(e) => {
-                    const localDate = new Date(e.target.value + 'Z'); // Append 'Z' to indicate UTC time
-                    const offsetMinutes = localDate.getTimezoneOffset();
-                    const adjustedDate = new Date(localDate.getTime() + offsetMinutes * 60000);
-                    const newDate = adjustedDate.toISOString().substr(0, 16);
-                  
-                    setPaymentdate(newDate);
-                  
-                    const currentDate = new Date();
-                    const selectedDate = new Date(newDate);
-                    const isValidDate = newDate.trim() !== '' && selectedDate <= currentDate;
-                  
-                    setFieldErrors((prevFieldErrors) => ({
-                      ...prevFieldErrors,
-                      paymentdate: !isValidDate,
-                    }));
-                  }}                  
-                  error={fieldErrors.paymentdate}
-                  helperText={
-                    fieldErrors.paymentdate
-                      ? fieldErrors.paymentdate && new Date(paymentdate) > new Date()
-                        ? 'Payment date and time should not be in the future'
-                        : 'Payment date and time is required'
-                      : ''
-                  }
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  inputProps={{
-                    max: today,
-                  }}
-                /> */}
               </Stack>
             </>
           )}

@@ -151,7 +151,7 @@ export default function AdmissionForm() {
   const [newCollegeIDPreviewFileState, setNewCollegeIDPreviewFileState] = useState('');
 
   const [openPreview, setOpenPreview] = useState(false);
-  const [discount, setDiscount] = React.useState('');
+  const [discount, setDiscount] = React.useState(undefined);
   const [finalFee, setFinalFee] = React.useState('');
   const [selectedPreviewFile, setSelectedPreviewFile] = useState(null);
 
@@ -435,6 +435,13 @@ export default function AdmissionForm() {
           setIndustry(WorkingIndustry);
           setCompanyName(WorkingCompany);
           setRefereedByName(ReferenceBy);
+          if(!ReferenceContactNumber)
+          {
+            setAreYouReferred('n')
+          }
+          else{
+            setAreYouReferred('y')
+          }          
           setRefereedByContact(ReferenceContactNumber);
           setFinalFee(selectedCousreObj.Course_Fee);
         });
@@ -543,6 +550,7 @@ export default function AdmissionForm() {
     }
   };
 
+  // pre fill data for editing
   useEffect(() => {
     const getOneData = async (id) => {
       setOpenLoader(true);
@@ -643,6 +651,13 @@ export default function AdmissionForm() {
           setWorking(WorkingStatus);
           setIndustry(WorkingIndustry);
           setCompanyName(WorkingCompany);
+          if(!ReferenceContactNumber)
+          {
+            setAreYouReferred('n')
+          }
+          else{
+            setAreYouReferred('y')
+          }    
           setRefereedByName(ReferenceBy);
           setRefereedByContact(ReferenceContactNumber);
         });
@@ -816,10 +831,10 @@ export default function AdmissionForm() {
       preferredTimings: preferredTimings.trim() === '',
       prefCourseCategory: !prefCourseCategory.Course_Category,
       prefTechnology: !prefTechnology.Course_Name,
-      working: working.trim() === '',
-      areYouReferred: areYouReferred.trim() === '',
+      working: working.trim() === '',      
       industry: working === 'y' && industry.trim() === '',
       companyName: working === 'y' && companyName.trim() === '',
+      areYouReferred: areYouReferred.trim() === '',
       refereedByName: areYouReferred === 'y' && refereedByName.trim() === '',
       refereedByContact: areYouReferred === 'y' && refereedByContact.trim() === '',
     };
@@ -885,6 +900,7 @@ export default function AdmissionForm() {
   const handleReset = () => {
     setActiveStep(0);
   };
+
   // const handleFormSubmit = () => {
   //   if (activeStep === 4 && !validateOthers()) {
   //     return;
@@ -942,6 +958,10 @@ export default function AdmissionForm() {
     if (activeStep === 4 && !validateOthers()) {
       return;
     }
+    if(discount === '')
+    {
+      setDiscount(0);
+    }
     const formData = new FormData();
     if (id) {
       formData.append('AdmissionId', id);
@@ -986,11 +1006,10 @@ export default function AdmissionForm() {
     formData.append('DiscountAmount', discount);
     formData.append('NetAmount', finalFee);
     formData.append(!id ? 'CreatedBy' : 'Modifyby', 86);
-
     formData.append('EnquiryId', alreadyEnquired === 'y' ? selectedEnquiryID.EnquiryId : 0);
-
     if (!id) {
       addNewAdmission(formData);
+      // console.log("submitted fr add: ",discount  )
     } else {
       UpdateAdmission(id, formData);
     }
@@ -1036,7 +1055,7 @@ export default function AdmissionForm() {
         ...prevFieldErrors,
         discount: false,
       }));
-      setFinalFee(courseFee);
+      setFinalFee(courseFee);      
     }
   };
 

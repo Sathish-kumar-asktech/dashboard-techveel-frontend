@@ -94,6 +94,7 @@ export default function Enquiry() {
   const [companyName, setCompanyName] = React.useState('');
   const [refereedByName, setRefereedByName] = React.useState('');
   const [refereedByContact, setRefereedByContact] = React.useState('');
+  const [areYouReferred, setAreYouReferred] = useState('');
 
   const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
   const calculateMaxDate = () => {
@@ -108,8 +109,6 @@ export default function Enquiry() {
   const [categoryData, setCategoryData] = useState([]);
   const [filteredCourseData, setFilteredCourseData] = useState([]);
   const [courseData, setCourseData] = useState([]);
-  // const [editDataonID, setEditDataonID] = useState([]);
-
   // alert messages on operations
   const [alertType, setAlertType] = useState('success'); // 'success' or 'error'
   const [openAlert, setopenAlert] = useState(false);
@@ -156,6 +155,7 @@ export default function Enquiry() {
     industry: false,
     refereedByName: false,
     refereedByContact: false,
+    areYouReferred: false,
   });
   const navigate = useNavigate();
 
@@ -309,6 +309,14 @@ export default function Enquiry() {
           setIndustry(WorkingIndustry);
           setCompanyName(WorkingCompany);
           setRefereedByName(ReferenceBy);
+          if(!ReferenceContactNumber)
+          {
+            setAreYouReferred('n')
+          }
+          else{
+            setAreYouReferred('y')
+          }      
+          setRefereedByName(ReferenceBy);
           setRefereedByContact(ReferenceContactNumber);
           // Set other properties using their respective set functions
         });
@@ -459,6 +467,9 @@ export default function Enquiry() {
       working: working.trim() === '',
       industry: working === 'y' && industry.trim() === '',
       companyName: working === 'y' && companyName.trim() === '',
+      areYouReferred: areYouReferred.trim() === '',
+      refereedByName: areYouReferred === 'y' && refereedByName.trim() === '',
+      refereedByContact: areYouReferred === 'y' && refereedByContact.trim() === '',
     };
     setFieldErrors((prevFieldErrors) => ({ ...prevFieldErrors, ...errors }));
     return !Object.values(errors).some(Boolean);
@@ -1270,7 +1281,7 @@ export default function Enquiry() {
                             </FormControl>
                           </Stack>
 
-                          <FormControl size="small" fullWidth component="fieldset">
+                          {/* <FormControl size="small" fullWidth component="fieldset">
                             <FormLabel component="legend">Are You Working Professional?</FormLabel>
                             <RadioGroup
                               row
@@ -1291,7 +1302,56 @@ export default function Enquiry() {
                                 Please select any option
                               </Typography>
                             )}
-                          </FormControl>
+                          </FormControl> */}
+
+                          <Stack direction={{ md: 'row', xs: 'column' }} spacing={3} my={1}>
+                            <FormControl size="small" fullWidth component="fieldset">
+                              <FormLabel component="legend">Are You Working Professional?</FormLabel>
+                              <RadioGroup
+                                row
+                                value={working}
+                                onChange={(e) => {
+                                  setWorking(e.target.value);
+                                  setFieldErrors((prevFieldErrors) => ({
+                                    ...prevFieldErrors,
+                                    working: !e.target.value.trim() === '',
+                                  }));
+                                }}
+                              >
+                                <FormControlLabel value="y" control={<Radio />} label="Yes" />
+                                <FormControlLabel value="n" control={<Radio />} label="No" />
+                              </RadioGroup>
+                              {fieldErrors.working && (
+                                <Typography variant="caption" color="error" sx={{ px: 1.5 }}>
+                                  Please select any option
+                                </Typography>
+                              )}
+                            </FormControl>
+
+                            <FormControl size="small" fullWidth component="fieldset">
+                              <FormLabel component="legend">Are You Referred by Someone?</FormLabel>
+                              <RadioGroup
+                                row
+                                value={areYouReferred}
+                                onChange={(e) => {
+                                  setAreYouReferred(e.target.value);
+                                  setFieldErrors((prevFieldErrors) => ({
+                                    ...prevFieldErrors,
+                                    areYouReferred: !e.target.value.trim() === '',
+                                  }));
+                                }}
+                              >
+                                <FormControlLabel value="y" control={<Radio />} label="Yes" />
+                                <FormControlLabel value="n" control={<Radio />} label="No" />
+                              </RadioGroup>
+                              {fieldErrors.areYouReferred && (
+                                <Typography variant="caption" color="error" sx={{ px: 1.5 }}>
+                                  Please select any option
+                                </Typography>
+                              )}
+                            </FormControl>
+                          </Stack>
+
                           {working === 'y' && (
                             <>
                               <Stack direction={{ md: 'row', xs: 'column' }} spacing={3} my={1}>
@@ -1329,7 +1389,42 @@ export default function Enquiry() {
                               </Stack>
                             </>
                           )}
-                          <Typography variant="h6" color="#0288d1">
+                          {areYouReferred === 'y' && (
+                          <Stack direction={{ md: 'row', xs: 'column' }} spacing={3} my={1}>
+                            <TextField
+                              size="small"
+                              fullWidth
+                              label="Referred By Name"
+                              value={refereedByName}
+                              onChange={(e) => {
+                                setRefereedByName(e.target.value);
+                                setFieldErrors((prevFieldErrors) => ({
+                                  ...prevFieldErrors,
+                                  refereedByName: !nameRegex.test(e.target.value),
+                                }));
+                              }}
+                              error={fieldErrors.refereedByName}
+                              helperText={fieldErrors.refereedByName && 'Enter valid name'}
+                            />
+                            <TextField
+                              size="small"
+                              type="number"
+                              fullWidth
+                              label="Referred By Contact Number"
+                              value={refereedByContact}
+                              onChange={(e) => {
+                                setRefereedByContact(e.target.value);
+                                setFieldErrors((prevFieldErrors) => ({
+                                  ...prevFieldErrors,
+                                  refereedByContact: !contactRegex.test(e.target.value),
+                                }));
+                              }}
+                              error={fieldErrors.refereedByContact}
+                              helperText={fieldErrors.refereedByContact && 'Enter 10 digit mobile number'}
+                            />
+                          </Stack>
+                        )}
+                          {/* <Typography variant="h6" color="#0288d1">
                             Reference Details(optional):
                           </Typography>
 
@@ -1349,7 +1444,7 @@ export default function Enquiry() {
                               value={refereedByContact}
                               onChange={(e) => setRefereedByContact(e.target.value)}
                             />
-                          </Stack>
+                          </Stack> */}
                         </Box>
                       </>
                     )}
@@ -1376,7 +1471,7 @@ export default function Enquiry() {
           </>
         ) : (
           <>
-            <AdmissionForm  />
+            <AdmissionForm />
           </>
         )}
       </Container>

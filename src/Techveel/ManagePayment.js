@@ -662,13 +662,9 @@ const ManagePayment = () => {
                       <Button  size={'small'} variant="outlined" color="secondary" startIcon={<MenuOpenIcon/>}>
                         View
                       </Button>
-                      {/* <IconButton aria-label="Edit">
-                        <EditIcon color="primary" />
-                      </IconButton> */}
+                      
                     </Link>
-                    {/* <IconButton aria-label="Delete" onClick={() => handleDelete(pay.PaymentId)}>
-                      <DeleteForeverIcon color="error" />
-                    </IconButton> */}
+                   
                   </TableCell>
                 </TableRow>
               ))}
