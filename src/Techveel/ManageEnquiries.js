@@ -23,6 +23,7 @@ import {
   LinearProgress,
 } from '@mui/material';
 import * as XLSX from 'xlsx';
+import XLSXS from 'xlsx-js-style';
 import Slide from '@mui/material/Slide';
 import CallIcon from '@mui/icons-material/Call';
 import EmailIcon from '@mui/icons-material/Email';
@@ -225,14 +226,73 @@ const ManageEnquiriesTable = () => {
     setopenAlert(false);
   };
 
+  
+  function formatDateDob(inputDateTime) {
+    const isoDate = new Date(inputDateTime);
+
+    const day = isoDate.getUTCDate().toString().padStart(2, '0');
+    const month = (isoDate.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = isoDate.getUTCFullYear();
+
+    let hour = isoDate.getUTCHours();
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour %= 12;
+    hour = hour || 12; // Convert 0 to 12
+
+    const minute = isoDate.getUTCMinutes().toString().padStart(2, '0');
+
+    return `${day}/${month}/${year}`;
+  }
+  
   // handleDownloadExcel
+  // const handleDownloadExcel = () => {
+  //   console.log('excel object enq:', filteredData);
+  //   const data = filteredData.map((enq, index) => ({
+  //     'S.No': index + 1,
+  //     'Enquiry ID': enq.EnquiryId,
+  //     Name: `${enq.FirstName} ${enq.LastName}`,
+  //     Phone: enq.PhoneNumber,
+  //     'Email ID': enq.Email,
+  //     City: enq.CityName,
+  //     'Course Category': enq.Course_Category,
+  //     Course: enq.Course_Name,
+  //     'Preferred Day': enq.PerferenceDay,
+  //     'Preferred Mode': enq.PerferenceMode,
+  //     'Preferred Timing': enq.PerferenceTiming,
+  //     'Enquiry Date': formatDate(enq.CreatedDate),
+  //     'College Name': enq.CollegeName,
+  //     'Degree Name': enq.DegreeName,
+  //     DOB: formatDate(enq.Dob),
+  //     Gender: enq.Gender === 'm' ? 'Male' : 'Female',
+  //     GraduationType: enq.GraduationType === 'ug' ? 'UG' : 'PG',
+  //     'UG %': enq.UGPer,
+  //     'UG Passed Out': enq.UGPassedOut,
+  //     'PG %': enq.PGPassedOut === 'N/A' ? ' ' : enq.PGPer,
+  //     'PG Passed Out': enq.PGPassedOut === 'N/A' ? ' ' : enq.PGPassedOut,
+  //     WorkingStatus: enq.WorkingStatus === 'n' ? 'No' : 'Yes',
+  //     // SSLCPassedOut: enq.SslcPassedout,
+  //     // SSLCPercentage: enq.SslcPer,
+  //     // HSCPassedOut: enq.HscPassedout,
+  //     // HSCPercentage: enq.HscPer,
+  //     // WorkingCompany: enq.WorkingCompany,
+  //     // WorkingIndustry: enq.WorkingIndustry,
+  //     'Referrred By': enq.ReferenceBy,
+  //     'Ref. Contact Number': enq.ReferenceContactNumber,
+  //   }));
+
+  //   const worksheet = XLSX.utils.json_to_sheet(data);
+  //   const workbook = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Enquiries');
+  //   XLSX.writeFile(workbook, `Enquiries Data-${formatDateToinitialValues(new Date())}.xlsx`);
+  // };
+
   const handleDownloadExcel = () => {
-    console.log('excel object enq:', filteredData);
+    
     const data = filteredData.map((enq, index) => ({
       'S.No': index + 1,
       'Enquiry ID': enq.EnquiryId,
       Name: `${enq.FirstName} ${enq.LastName}`,
-      Phone: enq.PhoneNumber,
+      'Phone Number ': enq.PhoneNumber,
       'Email ID': enq.Email,
       City: enq.CityName,
       'Course Category': enq.Course_Category,
@@ -243,7 +303,7 @@ const ManageEnquiriesTable = () => {
       'Enquiry Date': formatDate(enq.CreatedDate),
       'College Name': enq.CollegeName,
       'Degree Name': enq.DegreeName,
-      DOB: formatDate(enq.Dob),
+      DOB: formatDateDob(enq.Dob),
       Gender: enq.Gender === 'm' ? 'Male' : 'Female',
       GraduationType: enq.GraduationType === 'ug' ? 'UG' : 'PG',
       'UG %': enq.UGPer,
@@ -251,20 +311,108 @@ const ManageEnquiriesTable = () => {
       'PG %': enq.PGPassedOut === 'N/A' ? ' ' : enq.PGPer,
       'PG Passed Out': enq.PGPassedOut === 'N/A' ? ' ' : enq.PGPassedOut,
       WorkingStatus: enq.WorkingStatus === 'n' ? 'No' : 'Yes',
-      // SSLCPassedOut: enq.SslcPassedout,
-      // SSLCPercentage: enq.SslcPer,
-      // HSCPassedOut: enq.HscPassedout,
-      // HSCPercentage: enq.HscPer,
-      // WorkingCompany: enq.WorkingCompany,
-      // WorkingIndustry: enq.WorkingIndustry,
-      'Referrred By': enq.ReferenceBy,
+      'Reference By': enq.ReferenceBy,
       'Ref. Contact Number': enq.ReferenceContactNumber,
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Enquiries');
-    XLSX.writeFile(workbook, `Enquiries Data-${formatDateToinitialValues(new Date())}.xlsx`);
+    const wb = XLSXS.utils.book_new();
+    const ws = XLSXS.utils.json_to_sheet(data, { origin: 'A8' });
+    const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'];
+    const maxColWidths = {};
+    const title = 'ENQUIRIES REPORT';
+
+    // SETTING UP WIDTH DYNAMICALLY
+    data.forEach((row) => {
+      for (const col in row) {
+        if (Object.prototype.hasOwnProperty.call(row, col)) {
+          const cellValue = row[col] ? row[col].toString() : '';
+          maxColWidths[col] = Math.max(maxColWidths[col] || 0, cellValue.length + 15);
+        }
+      }
+    });
+
+    const wscols = Object.keys(maxColWidths).map((col) => ({ wch: maxColWidths[col] }));
+
+    ws['!cols'] = wscols;
+
+    // Merging cells for the title
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 1, c: 23 } }];
+    // Set the title cell's value and styling
+    ws.A1 = {
+      v: title,
+      t: 's',
+      s: {
+        font: { bold: true, sz: 16 },
+        alignment: { horizontal: 'center', vertical: 'center' },
+        fill: { fgColor: { rgb: '0080ff' } },
+        border: {
+          left: { style: 'thin', color: { rgb: '000000' } },
+          top: { style: 'thin', color: { rgb: '000000' } },
+          right: { style: 'thin', color: { rgb: '000000' } },
+          bottom: { style: 'thin', color: { rgb: '000000' } },
+        },
+      },
+    };
+
+    // ws.C4 = { v: 'Name: ', t: 's', s: { font: { bold: true } } };
+    // ws.D4 = { v: filters.name === '' ? 'ALL Names' : filters.name, t: 's' };
+
+    // ws.E4 = { v: 'Phone: ', t: 's', s: { font: { bold: true } } };
+    // ws.F4 = { v: filters.phoneNumber === '' ? 'ALL' : filters.phoneNumber, t: 's' };
+
+    // ws.G4 = { v: 'Class Mode: ', t: 's', s: { font: { bold: true } } };
+    // ws.H4 = { v: filters.preferredMode === '' ? 'Both' : filters.preferredMode, t: 's' };
+
+    // ws.C5 = { v: 'Course Category: ', t: 's', s: { font: { bold: true } } };
+    // ws.D5 = { v: filters.courseCategory === '' ? 'ALL' : filters.courseCategory, t: 's' };
+
+    // ws.E5 = { v: 'Course: ', t: 's', s: { font: { bold: true } } };
+    // ws.F5 = { v: filters.course === '' ? 'ALL' : filters.course, t: 's' };
+
+    // ws.C6 = { v: 'From Date: ', t: 's', s: { font: { bold: true } } };
+    // ws.D6 = { v: formatDateDob(filters.fromDate), t: 's' };
+
+    // ws.E6 = { v: 'To Date: ', t: 's', s: { font: { bold: true } } };
+    // ws.F6 = { v: formatDateDob(filters.toDate), t: 's' };
+
+    // headers row styling
+    const headerRowIndex = '8';
+    columns.forEach((col) => {
+      const cell = `${col}${headerRowIndex}`;
+      // console.log("cell",cell );
+      ws[cell].s = {
+        fill: { fgColor: { rgb: '00bfff' } },
+        alignment: { horizontal: 'center' },
+        font: { bold: true, sz: 12 },
+        border: {
+          left: { style: 'thin', color: { rgb: 'black' } },
+          top: { style: 'thin', color: { rgb: 'black' } },
+          right: { style: 'thin', color: { rgb: 'black' } },
+          bottom: { style: 'thin', color: { rgb: 'black' } },
+        },
+      };
+    });
+
+    // excel table contents 
+    const CellStyle = {
+      alignment: { horizontal: 'center' },
+      border: {
+        left: { style: 'thin', color: { rgb: 'black' } },
+        top: { style: 'thin', color: { rgb: 'black' } },
+        right: { style: 'thin', color: { rgb: 'black' } },
+        bottom: { style: 'thin', color: { rgb: 'black' } },
+      },
+    };
+    for (let i = 1; i <= data.length; i += 1) {
+      const rowNumber = i + 8;
+      ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X'].forEach((col) => {
+        const cell = `${col}${rowNumber}`;
+        ws[cell].s = CellStyle;
+      });
+    }
+
+    XLSXS.utils.book_append_sheet(wb, ws, 'Enquiries Data');
+    XLSXS.writeFile(wb, `Enquiries Data ${formatDateToinitialValues(new Date())}.xlsx`);
   };
 
   // search & filter

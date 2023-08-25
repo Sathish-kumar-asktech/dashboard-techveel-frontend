@@ -23,6 +23,7 @@ import {
   LinearProgress, ButtonGroup,
 } from '@mui/material';
 import * as XLSX from 'xlsx';
+import XLSXS from 'xlsx-js-style';
 import Slide from '@mui/material/Slide';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import JsPDF from 'jspdf';
@@ -216,25 +217,167 @@ const ManagePayment = () => {
   const handleCloseAlert = () => {
     setopenAlert(false);
   };
+  
+  function formatDateDob(inputDateTime) {
+    const isoDate = new Date(inputDateTime);
 
+    const day = isoDate.getUTCDate().toString().padStart(2, '0');
+    const month = (isoDate.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = isoDate.getUTCFullYear();
+
+    let hour = isoDate.getUTCHours();
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour %= 12;
+    hour = hour || 12; // Convert 0 to 12
+
+    const minute = isoDate.getUTCMinutes().toString().padStart(2, '0');
+
+    return `${day}/${month}/${year}`;
+  }
 
   // handleDownloadExcel
+  // const handleDownloadExcel = () => {
+  //   const data = filteredData.map((pay) => ({
+  //     AdmissionNo : pay.Admissionid,
+  //     FullName: `${pay.FirstName} ${pay.LastName}`,      
+  //     Course_Category: pay.Course_Category,
+  //     Course_Name:pay.Course_Name,
+  //     Course_Fee:pay.Course_Fee,
+  //     Offrered_Fee: pay.NetAmount,
+  //     TotalPaidAmount: pay.TotalPaidAmount,
+  //     Balance: (pay.NetAmount - pay.TotalPaidAmount),
+  //     LastPaymentDate: formatDate(pay.LastPaymentDate),
+  //   }));
+  //   const worksheet = XLSX.utils.json_to_sheet(data);
+  //   const workbook = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Admission');
+  //   XLSX.writeFile(workbook, `PaymentsData+${currentDate}+.xlsx`);
+  // };
+
+    // handleDownloadExcel
   const handleDownloadExcel = () => {
-    const data = filteredData.map((pay) => ({
-      AdmissionNo : pay.Admissionid,
-      FullName: `${pay.FirstName} ${pay.LastName}`,      
-      Course_Category: pay.Course_Category,
-      Course_Name:pay.Course_Name,
-      Course_Fee:pay.Course_Fee,
-      Offrered_Fee: pay.NetAmount,
-      TotalPaidAmount: pay.TotalPaidAmount,
-      Balance: (pay.NetAmount - pay.TotalPaidAmount),
-      LastPaymentDate: formatDate(pay.LastPaymentDate),
+    const data = filteredData.map((enq, index) => ({
+      'S.No': index + 1,
+      'Admission ID': enq.Admissionid,
+      'Admission Date': formatDate(enq.PaymentDate),
+      Name: `${enq.FirstName} ${enq.LastName}`,
+      'Course Category': enq.Course_Category,
+      Course: enq.Course_Name,
+      'Course Fee ₹': enq.Course_Fee,
+      'Offered Fee ₹': enq.OfferedFee,
+      'Total Paid ₹': enq.TotalPaidAmount,
+      'Balance Fee ₹': enq.BalanceFee,
+      'Last Payment Date': formatDate(enq.PaymentDate),
     }));
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Admission');
-    XLSX.writeFile(workbook, `PaymentsData+${currentDate}+.xlsx`);
+
+    const wb = XLSXS.utils.book_new();
+    const ws = XLSXS.utils.json_to_sheet(data, { origin: 'A8' });
+    const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
+    const maxColWidths = {};
+    const title = 'Payments Summary Report';
+
+    // SETTING UP WIDTH DYNAMICALLY
+    data.forEach((row) => {
+      for (const col in row) {
+        if (Object.prototype.hasOwnProperty.call(row, col)) {
+          const cellValue = row[col] ? row[col].toString() : '';
+          maxColWidths[col] = Math.max(maxColWidths[col] || 0, cellValue.length + 15);
+        }
+      }
+    });
+
+    const wscols = Object.keys(maxColWidths).map((col) => ({ wch: maxColWidths[col] }));
+
+    ws['!cols'] = wscols;
+
+    // Merging cells for the title
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 1, c: 10 } }]; // Merging cells A1 to K2
+
+    // Set the title cell's value and styling
+    ws.A1 = {
+      v: title,
+      t: 's',
+      s: {
+        font: { bold: true, sz: 16 },
+        alignment: { horizontal: 'center', vertical: 'center' },
+        fill: { fgColor: { rgb: 'CCFFCC' } },
+      },
+    };
+
+    // ws.C4 = { v: 'Name: ', t: 's', s: { font: { bold: true } } };
+    // ws.D4 = { v: filters.name === '' ? 'ALL Names' : filters.name, t: 's' };
+
+    // ws.E4 = { v: 'Payment Status: ', t: 's', s: { font: { bold: true } } };
+    // ws.F4 = { v: filters.paymentStatus === '' ? 'ALL' : filters.paymentStatus, t: 's' };
+
+    // ws.C5 = { v: 'Course Category: ', t: 's', s: { font: { bold: true } } };
+    // ws.D5 = { v: filters.courseCategory === '' ? 'ALL' : filters.courseCategory, t: 's' };
+
+    // ws.E5 = { v: 'Course: ', t: 's', s: { font: { bold: true } } };
+    // ws.F5 = { v: filters.course === '' ? 'ALL' : filters.course, t: 's' };
+
+    // ws.C6 = { v: 'From Date: ', t: 's', s: { font: { bold: true } } };
+    // ws.D6 = { v: formatDateDob(filters.fromDate), t: 's' };
+
+    // ws.E6 = { v: 'To Date: ', t: 's', s: { font: { bold: true } } };
+    // ws.F6 = { v: formatDateDob(filters.toDate), t: 's' };
+
+    // headers row styling
+    const headerRowIndex = '8';
+    columns.forEach((col) => {
+      const cell = `${col}${headerRowIndex}`;
+      // console.log("cell",cell );
+      ws[cell].s = {
+        fill: { fgColor: { rgb: 'CCFFCC' } },
+        alignment: { horizontal: 'center' },
+        font: { bold: true, sz: 12 },
+        border: {
+          left: { style: 'thin', color: { rgb: 'black' } },
+          top: { style: 'thin', color: { rgb: 'black' } },
+          right: { style: 'thin', color: { rgb: 'black' } },
+          bottom: { style: 'thin', color: { rgb: 'black' } },
+        },
+      };
+    });
+
+    // excel table contents numbers
+    const PriceCellStyle = {
+      alignment: { horizontal: 'right' },
+      border: {
+        left: { style: 'thin', color: { rgb: 'black' } },
+        top: { style: 'thin', color: { rgb: 'black' } },
+        right: { style: 'thin', color: { rgb: 'black' } },
+        bottom: { style: 'thin', color: { rgb: 'black' } },
+      },
+    };
+    for (let i = 1; i <= data.length; i += 1) {
+      const rowNumber = i + 8;
+      ['G', 'H', 'I', 'J'].forEach((col) => {
+        const cell = `${col}${rowNumber}`;
+        ws[cell].s = PriceCellStyle;
+      });
+    }
+
+    // excel table contents strings
+    const VarCellStyle = {
+      alignment: { horizontal: 'left' },
+      border: {
+        left: { style: 'thin', color: { rgb: 'black' } },
+        top: { style: 'thin', color: { rgb: 'black' } },
+        right: { style: 'thin', color: { rgb: 'black' } },
+        bottom: { style: 'thin', color: { rgb: 'black' } },
+      },
+    };
+    for (let i = 1; i <= data.length; i += 1) {
+      const rowNumber = i + 8;
+      ['A', 'B', 'C', 'D', 'E', 'F', 'K'].forEach((col) => {
+        const cell = `${col}${rowNumber}`;
+        ws[cell].s = VarCellStyle;
+      });
+    }
+
+    XLSXS.utils.book_append_sheet(wb, ws, 'Payments Summary');
+    XLSXS.writeFile(wb, `Payments Summary ${formatDateToinitialValues(new Date())}.xlsx`);
   };
 
   // handleDownloadPDF

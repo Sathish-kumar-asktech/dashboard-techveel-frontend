@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import moment from 'moment';
 import axios from '../axios';
 
 function formatDate(inputDate) {
@@ -47,19 +48,23 @@ const PaymentUpdateForm = () => {
   // State to manage form data
   const [payerAdmissionId, setpayerAdmissionId] = useState('');
   const [paymentType, setPaymentType] = useState('');
-  const [paymentMode, setPaymentMode] = useState('');
+  const [paymentMode, setPaymentMode] = useState('cash');
   const [totalFee, setTotalFee] = useState('');
-  const [paidFee, setPaidFee] = useState(null);
+  const [paidFee, setPaidFee] = useState('');
   const [balance, setBalance] = useState('');
   const [prevBalance, setPrevBalance] = useState('');
   const [balanceOnDate, setBalanceOnDate] = useState('');
-  const [paymentdate, setPaymentdate] = useState(new Date().toISOString().substr(0, 10));
+  // const [paymentdate, setPaymentdate] = useState(new Date().toISOString().substr(0, 10));
+  // const [paymentdate, setPaymentdate] = useState(new Date().toISOString().substr(0, 16));
   // const [paymentdate, setPaymentdate] = useState('');
+  const [paymentdate, setPaymentdate] = useState(
+    new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().substr(0, 16)
+  );
+
   const [remarks, setRemarks] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedStudentData, setSelectedStudentData] = useState(null);
   const [openLoader, setOpenLoader] = useState(false);
-  
 
   const [fieldErrors, setFieldErrors] = React.useState({
     selectedStudent: false,
@@ -78,7 +83,8 @@ const PaymentUpdateForm = () => {
       paymentType: !paymentType,
       paymentModeErr: !paymentMode,
       totalFee: !totalFee,
-      paidFee: paymentType === 'Partial' && paidFee.trim() === '',
+      paidFee: paidFee.trim() === '' || !paidFee,
+      // paidFee: paymentType === 'Partial' && paidFee.trim() === '',
       abovebalance: paidFee > balance,
       remarks: !remarks,
       paymentdate: !paymentdate,
@@ -124,26 +130,34 @@ const PaymentUpdateForm = () => {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-
     // console.log(validateErrors);
     if (!validateErrors()) {
       return;
     }
+    console.log('paymentdate: ', paymentdate);
+    // Truncate seconds and milliseconds from the PaymentDate
+    const truncatedPaymentDate = new Date(paymentdate);
+    truncatedPaymentDate.setSeconds(0);
+    truncatedPaymentDate.setMilliseconds(0);
 
+    // const formattedPaymentDate = truncatedPaymentDate.toISOString();
+
+    // const formattedPaymentDate = new Date(truncatedPaymentDate).toISOString();
+
+    // const formattedPaymentDate = truncatedPaymentDate.toISOString().replace('T', ' ').slice(0, 19);
+
+    console.log('formattedPaymentDate : ', truncatedPaymentDate);
     const PayData = {
       Admissionid: payerAdmissionId,
       PayType: paymentType,
       PayMode: paymentMode,
-      PaymentDate: paymentdate,
+      PaymentDate: moment(paymentdate).format('YYYY-MM-DD HH:mm:ss'),
       PaidAmount: paidFee,
       prevBalance,
-      // prevBalance:prevBalance,
       BalanceOnDate: balanceOnDate,
       Remarks: remarks,
       CreatedBy: 86,
-      // [!id ? 'CreatedBy' : 'Modifyby']: 86,
     };
-
     console.log('Submitted Data', PayData, 'ID: ', id);
     addNewPayment(PayData);
   };
@@ -211,7 +225,7 @@ const PaymentUpdateForm = () => {
         const selecteddata = data[0];
         setSelectedStudentData(selecteddata);
         setpayerAdmissionId(selecteddata.AdmissionId);
-        setTotalFee(selecteddata.NetAmount);        
+        setTotalFee(selecteddata.NetAmount);
         setBalance(selecteddata.NetAmount);
         setPrevBalance(selecteddata.NetAmount);
         if (paymentType === 'Full') {
@@ -244,11 +258,11 @@ const PaymentUpdateForm = () => {
         const data = res.data;
         const selecteddata = data[0];
         setSelectedStudentData(selecteddata);
-        setPaymentType("Partial")
+        setPaymentType('Partial');
         setpayerAdmissionId(id ? selecteddata.Admissionid : selecteddata.AdmissionId);
         setTotalFee(selecteddata.NetAmount);
         setBalance(selecteddata.NetAmount - selecteddata.TotalPaidAmount);
-        setPrevBalance(selecteddata.NetAmount-selecteddata.TotalPaidAmount);
+        setPrevBalance(selecteddata.NetAmount - selecteddata.TotalPaidAmount);
         console.log('balance', selecteddata.NetAmount - selecteddata.TotalPaidAmount);
         setOpenLoader(false);
       } catch (error) {
@@ -434,7 +448,7 @@ const PaymentUpdateForm = () => {
                   }}
                 >
                   <FormControlLabel value="Full" control={<Radio />} disabled={!!id} label="Full Payment" />
-                  <FormControlLabel value="Partial" control={<Radio />} SELEC label="Partial Payment" />
+                  <FormControlLabel value="Partial" control={<Radio />} label="Partial Payment" />
                 </RadioGroup>
               </FormControl>
               {fieldErrors.paymentType && (
@@ -508,6 +522,41 @@ const PaymentUpdateForm = () => {
                   max: today,
                 }}
               />
+              {/* <TextField
+                size="small"
+                fullWidth
+                label="Payment Date"
+                type="date"
+                value={paymentdate}
+                onChange={(e) => {
+                  const newDate = e.target.value;
+                  setPaymentdate(newDate);
+
+                  const currentDate = new Date();
+                  const selectedDate = new Date(newDate);
+
+                  const isValidDate = newDate.trim() !== '' && selectedDate <= currentDate;
+
+                  setFieldErrors((prevFieldErrors) => ({
+                    ...prevFieldErrors,
+                    paymentdate: !isValidDate,
+                  }));
+                }}
+                error={fieldErrors.paymentdate}
+                helperText={
+                  fieldErrors.paymentdate
+                    ? fieldErrors.paymentdate && new Date(paymentdate) > new Date()
+                      ? 'Payment date should not be in the future'
+                      : 'Payment date is required'
+                    : ''
+                }
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                inputProps={{
+                  max: today,
+                }}
+              /> */}
             </Stack>
           )}
           {paymentType === 'Partial' && (
@@ -560,14 +609,21 @@ const PaymentUpdateForm = () => {
                   size="small"
                   fullWidth
                   label="Payment Date"
-                  type="date"
+                  type="datetime-local"
                   value={paymentdate}
                   onChange={(e) => {
-                    const newDate = e.target.value;
+                    const localDate = new Date(`${e.target.value}Z`);
+                    // const localDate = new Date(e.target.value + 'Z'); // Append 'Z' to indicate UTC time
+                    const offsetMinutes = localDate.getTimezoneOffset();
+                    const adjustedDate = new Date(localDate.getTime() + offsetMinutes * 60000);
+                    const newDate = adjustedDate.toISOString().substr(0, 16);
+
                     setPaymentdate(newDate);
+
                     const currentDate = new Date();
                     const selectedDate = new Date(newDate);
                     const isValidDate = newDate.trim() !== '' && selectedDate <= currentDate;
+
                     setFieldErrors((prevFieldErrors) => ({
                       ...prevFieldErrors,
                       paymentdate: !isValidDate,
@@ -577,8 +633,8 @@ const PaymentUpdateForm = () => {
                   helperText={
                     fieldErrors.paymentdate
                       ? fieldErrors.paymentdate && new Date(paymentdate) > new Date()
-                        ? 'Payment date should not be in the future'
-                        : 'Payment date is // required'
+                        ? 'Payment date and time should not be in the future'
+                        : 'Payment date and time is required'
                       : ''
                   }
                   InputLabelProps={{
@@ -588,6 +644,45 @@ const PaymentUpdateForm = () => {
                     max: today,
                   }}
                 />
+
+                {/* <TextField
+                  size="small"
+                  fullWidth
+                  label="Payment Date"
+                  type="datetime-local"
+                  value={paymentdate}
+                  onChange={(e) => {
+                    const localDate = new Date(e.target.value + 'Z'); // Append 'Z' to indicate UTC time
+                    const offsetMinutes = localDate.getTimezoneOffset();
+                    const adjustedDate = new Date(localDate.getTime() + offsetMinutes * 60000);
+                    const newDate = adjustedDate.toISOString().substr(0, 16);
+                  
+                    setPaymentdate(newDate);
+                  
+                    const currentDate = new Date();
+                    const selectedDate = new Date(newDate);
+                    const isValidDate = newDate.trim() !== '' && selectedDate <= currentDate;
+                  
+                    setFieldErrors((prevFieldErrors) => ({
+                      ...prevFieldErrors,
+                      paymentdate: !isValidDate,
+                    }));
+                  }}                  
+                  error={fieldErrors.paymentdate}
+                  helperText={
+                    fieldErrors.paymentdate
+                      ? fieldErrors.paymentdate && new Date(paymentdate) > new Date()
+                        ? 'Payment date and time should not be in the future'
+                        : 'Payment date and time is required'
+                      : ''
+                  }
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    max: today,
+                  }}
+                /> */}
               </Stack>
             </>
           )}

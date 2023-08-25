@@ -24,6 +24,7 @@ import {
   Box,
 } from '@mui/material';
 import * as XLSX from 'xlsx';
+import XLSXS from 'xlsx-js-style';
 import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
@@ -68,6 +69,24 @@ function formatDate(inputDateTime) {
   return `${day}/${month}/${year} ${hour}:${minute} ${ampm}`;
 }
 
+
+function formatDateDob(inputDateTime) {
+  const isoDate = new Date(inputDateTime);
+
+  const day = isoDate.getUTCDate().toString().padStart(2, '0');
+  const month = (isoDate.getUTCMonth() + 1).toString().padStart(2, '0');
+  const year = isoDate.getUTCFullYear();
+
+  let hour = isoDate.getUTCHours();
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  hour %= 12;
+  hour = hour || 12; // Convert 0 to 12
+
+  const minute = isoDate.getUTCMinutes().toString().padStart(2, '0');
+
+  return `${day}/${month}/${year}`;
+}
+
 const PaymentHistory = () => {
   const { id } = useParams();
   // eslint-disable-next-line no-restricted-globals
@@ -110,9 +129,31 @@ const PaymentHistory = () => {
 
   const today = new Date().toISOString().split('T')[0];
 
+  
+  // Set the initial state for fromDate and toDate
+  const formatDateToinitialValues = (date) => {
+    if (!date) {
+      return '';
+    }
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Get the current date and 30 days before the current date
+  const currentDate = new Date();
+  const fromDateOnCurrentMonth = new Date(currentDate);
+  fromDateOnCurrentMonth.setDate(1);
+
+  // Convert fromDate and toDate objects to formatted date strings
+  const initialFromDate = formatDateToinitialValues(fromDateOnCurrentMonth);
+  const initialToDate = formatDateToinitialValues(currentDate);
+
   // API Integration
   useEffect(() => {
     getOneData(id);
+    formatDateToinitialValues();
   }, []);
 
   const getOneData = async (id) => {
@@ -124,7 +165,7 @@ const PaymentHistory = () => {
       const data = res.data;
       setPaymentsHistoryData(data);
       setProfileData(data[0]);
-      // console.log('setProfileDate: ', data[0]);
+      console.log('setProfileDate: ', data);
       // setProfileName(`${data[0].FirstName} ${data[0].LastName}`);
       setBalance(data[0].NetAmount - data[0].TotalPaidAmount);
       setProfileID(data[0].Admissionid);
@@ -258,34 +299,170 @@ const PaymentHistory = () => {
   };
 
   // handleDownloadExcel
+  // const handleDownloadExcel = () => {
+  //   // console.log(filteredData);
+  //   const data = filteredData.map((pay) => ({
+  //     PaymentID: pay.PaymentId,
+  //     Admissionid: pay.Admissionid,
+  //     FullName: `${pay.FirstName} ${pay.LastName}`,
+  //     PayType: pay.PayType,
+  //     PayMode: pay.PayMode,
+  //     PaidAmount: pay.PaidAmount,
+  //     PaymentDate: formatDate(pay.PaymentDate),
+  //     Remarks: pay.Remarks,
+  //     prevBalance: pay.prevBalance,
+  //     BalanceOnDate: pay.BalanceOnDate,
+  //     TotalPaidAmount: pay.TotalPaidAmount,
+  //     CourseId: pay.CourseId,
+  //     Course_Name: pay.Course_Name,
+  //     Course_Fee: pay.Course_Fee,
+  //     NetAmount: pay.NetAmount,
+  //     CourseTechnologyId: pay.CourseTechnologyId,
+  //     Course_Category: pay.Course_Category,
+  //     CreatedDate: pay.CreatedDate,
+  //   }));
+
+  //   const worksheet = XLSX.utils.json_to_sheet(data);
+  //   const workbook = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Admission');
+  //   XLSX.writeFile(workbook, `PaymentsHistoryData+${new Date()}+.xlsx`);
+  // };
+  
   const handleDownloadExcel = () => {
-    // console.log(filteredData);
-    const data = filteredData.map((pay) => ({
-      PaymentID: pay.PaymentId,
-      Admissionid: pay.Admissionid,
-      FullName: `${pay.FirstName} ${pay.LastName}`,
-      PayType: pay.PayType,
-      PayMode: pay.PayMode,
-      PaidAmount: pay.PaidAmount,
-      PaymentDate: formatDate(pay.PaymentDate),
-      Remarks: pay.Remarks,
-      prevBalance: pay.prevBalance,
-      BalanceOnDate: pay.BalanceOnDate,
-      TotalPaidAmount: pay.TotalPaidAmount,
-      CourseId: pay.CourseId,
-      Course_Name: pay.Course_Name,
-      Course_Fee: pay.Course_Fee,
-      NetAmount: pay.NetAmount,
-      CourseTechnologyId: pay.CourseTechnologyId,
-      Course_Category: pay.Course_Category,
-      CreatedDate: pay.CreatedDate,
+    const data = filteredData.map((enq, index) => ({
+      'S.No': index + 1,
+      'Payment ID': enq.PaymentId,
+      'Payment Date': formatDate(enq.PaymentDate),
+      'Admission ID': enq.Admissionid,
+      Name: `${enq.FirstName} ${enq.LastName}`,
+      'Course Category': enq.Course_Category,
+      Course: enq.Course_Name,
+      'Course Fee': enq.Course_Fee,
+      'Offered Fee': enq.NetAmount,
+      'Total Paid Amount': enq.TotalPaidAmount,
+      'Total Balance': enq.BalanceFee,
+      'Paid Amount': enq.PaidAmount,
+      'Balance on Date': enq.BalanceOnDate,
+      'Payment Type': enq.PayType,
+      'Payment Mode': enq.PayMode,
+      Remarks: enq.Remarks,
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Admission');
-    XLSX.writeFile(workbook, `PaymentsHistoryData+${new Date()}+.xlsx`);
+    const wb = XLSXS.utils.book_new();
+    const ws = XLSXS.utils.json_to_sheet(data, { origin: 'A8' });
+    const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'];
+    const maxColWidths = {};
+    const title = `${profileData.FirstName} ${profileData.LastName} -  Payments History`;
+
+    // SETTING UP WIDTH DYNAMICALLY
+    data.forEach((row) => {
+      for (const col in row) {
+        if (Object.prototype.hasOwnProperty.call(row, col)) {
+          const cellValue = row[col] ? row[col].toString() : '';
+          maxColWidths[col] = Math.max(maxColWidths[col] || 0, cellValue.length + 15);
+        }
+      }
+    });
+
+    const wscols = Object.keys(maxColWidths).map((col) => ({ wch: maxColWidths[col] }));
+
+    ws['!cols'] = wscols;
+
+    // Merging cells for the title
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 1, c: 15 } }];
+    // Set the title cell's value and styling
+    ws.A1 = {
+      v: title,
+      t: 's',
+      s: {
+        font: { bold: true, sz: 16 },
+        alignment: { horizontal: 'center', vertical: 'center' },
+        fill: { fgColor: { rgb: 'CCFFCC' } },  
+        border: {
+          left: { style: 'thin', color: { rgb: '000000' } },
+          top: { style: 'thin', color: { rgb: '000000' } },
+          right: { style: 'thin', color: { rgb: '000000' } },
+          bottom: { style: 'thin', color: { rgb: '000000' } },
+        },    
+      },
+    };
+
+    // ws.C4 = { v: 'Name: ', t: 's', s: { font: { bold: true } } };
+    // ws.D4 = { v: filters.name === '' ? 'ALL Names' : filters.name, t: 's' };
+
+    // ws.E4 = { v: 'Payment Status: ', t: 's', s: { font: { bold: true } } };
+    // ws.F4 = { v: filters.paymentStatus === '' ? 'ALL' : filters.paymentStatus, t: 's' };
+
+    // ws.C5 = { v: 'Course Category: ', t: 's', s: { font: { bold: true } } };
+    // ws.D5 = { v: filters.courseCategory === '' ? 'ALL' : filters.courseCategory, t: 's' };
+
+    // ws.E5 = { v: 'Course: ', t: 's', s: { font: { bold: true } } };
+    // ws.F5 = { v: filters.course === '' ? 'ALL' : filters.course, t: 's' };
+
+    // ws.C6 = { v: 'From Date: ', t: 's', s: { font: { bold: true } } };
+    // ws.D6 = { v: formatDateDob(filters.fromDate), t: 's' };
+
+    // ws.E6 = { v: 'To Date: ', t: 's', s: { font: { bold: true } } };
+    // ws.F6 = { v: formatDateDob(filters.toDate), t: 's' };
+
+    // headers row styling
+    const headerRowIndex = '8';
+    columns.forEach((col) => {
+      const cell = `${col}${headerRowIndex}`;
+      // console.log("cell",cell );
+      ws[cell].s = {
+        fill: { fgColor: { rgb: 'CCFFCC' } },
+        alignment: { horizontal: 'center' },
+        font: { bold: true, sz: 12 },
+        border: {
+          left: { style: 'thin', color: { rgb: 'black' } },
+          top: { style: 'thin', color: { rgb: 'black' } },
+          right: { style: 'thin', color: { rgb: 'black' } },
+          bottom: { style: 'thin', color: { rgb: 'black' } },
+        },
+      };
+    });
+
+    // excel table contents numbers
+    const PriceCellStyle = {
+      alignment: { horizontal: 'right' },
+      border: {
+        left: { style: 'thin', color: { rgb: 'black' } },
+        top: { style: 'thin', color: { rgb: 'black' } },
+        right: { style: 'thin', color: { rgb: 'black' } },
+        bottom: { style: 'thin', color: { rgb: 'black' } },
+      },
+    };
+    for (let i = 1; i <= data.length; i += 1) {
+      const rowNumber = i + 8;
+      ['H', 'I', 'J', 'K', 'L', 'M'].forEach((col) => {
+        const cell = `${col}${rowNumber}`;
+        ws[cell].s = PriceCellStyle;
+      });
+    }
+
+    // excel table contents strings
+    const VarCellStyle = {
+      alignment: { horizontal: 'left' },
+      border: {
+        left: { style: 'thin', color: { rgb: 'black' } },
+        top: { style: 'thin', color: { rgb: 'black' } },
+        right: { style: 'thin', color: { rgb: 'black' } },
+        bottom: { style: 'thin', color: { rgb: 'black' } },
+      },
+    };
+    for (let i = 1; i <= data.length; i += 1) {
+      const rowNumber = i + 8;
+      ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'N', 'O', 'P'].forEach((col) => {
+        const cell = `${col}${rowNumber}`;
+        ws[cell].s = VarCellStyle;
+      });
+    }
+
+    XLSXS.utils.book_append_sheet(wb, ws, 'Payments Summary');    
+    XLSXS.writeFile(wb, `${profileData.FirstName} ${profileData.LastName} - Payments History  ${formatDateToinitialValues(new Date())}.xlsx`);
   };
+
 
   const handleClose = () => {
     setOpenEdit(false);
@@ -620,7 +797,7 @@ const PaymentHistory = () => {
                         textTransform: 'capitalize',
                       }}
                     >
-                      {formatDate(pay.CreatedDate)}
+                      {formatDate(pay.PaymentDate)}
                     </TableCell>
                     <TableCell
                       align="center"
@@ -735,7 +912,8 @@ const PaymentHistory = () => {
                   onChange={(e) => {
                     const newValue = e.target.value;
                     setPaidFee(newValue);
-                    setBalanceOnDate(parseFloat(prevBalance) - parseFloat(newValue));
+                    // setBalanceOnDate(maxEditable-newValue)
+                    setBalanceOnDate(prevBalance - newValue);
                     console.log('setBalanceOnDate: ', prevBalance - newValue);
                     setFieldErrors((prevFieldErrors) => ({
                       ...prevFieldErrors,
@@ -775,7 +953,7 @@ const PaymentHistory = () => {
                     fieldErrors.paymentdate
                       ? fieldErrors.paymentdate && new Date(paymentdate) > new Date()
                         ? 'Payment date should not be in the future'
-                        : 'Payment date is // required'
+                        : 'Payment date is required'
                       : ''
                   }
                   InputLabelProps={{

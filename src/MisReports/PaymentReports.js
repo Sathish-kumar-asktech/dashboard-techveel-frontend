@@ -483,7 +483,6 @@ const PaymentReports = () => {
 
   const handleDownloadPDFProfile = () => {
     const doc = new JsPDF();
-
     // Define column headers for the PDF table
     const headers = [
       'S.No',

@@ -23,6 +23,7 @@ import {
   LinearProgress,
 } from '@mui/material';
 import * as XLSX from 'xlsx';
+import XLSXS from 'xlsx-js-style';
 import Slide from '@mui/material/Slide';
 import CallIcon from '@mui/icons-material/Call';
 import EmailIcon from '@mui/icons-material/Email';
@@ -224,59 +225,256 @@ const ManageAdmissionTable = () => {
     setopenAlert(false);
   };
 
+  function formatDateDob(inputDateTime) {
+    const isoDate = new Date(inputDateTime);
+
+    const day = isoDate.getUTCDate().toString().padStart(2, '0');
+    const month = (isoDate.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = isoDate.getUTCFullYear();
+
+    let hour = isoDate.getUTCHours();
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour %= 12;
+    hour = hour || 12; // Convert 0 to 12
+
+    const minute = isoDate.getUTCMinutes().toString().padStart(2, '0');
+
+    return `${day}/${month}/${year}`;
+  }
+  
   const handleDownloadExcel = () => {
-    // console.log(filteredData);
-    const data = filteredData.map((enq) => ({
-      ID: enq.AdmissionId,
-      FullName: `${enq.FirstName} ${enq.LastName}`,
+    const data = filteredData.map((enq, index) => ({
+      'S.No': index + 1,
+      'Admission ID': enq.AdmissionId,
+      'Admission Date': formatDate(enq.AdmissionDate),
+      Name: `${enq.FirstName} ${enq.LastName}`,
+      'Student Photo': `${axios.baseURL}AdmissionDocs/${enq.profilePhoto}`,
       Phone: enq.PhoneNumber,
-      Email: enq.Email,         
-      Gender: enq.Gender,   
-      DOB: formatDate(enq.Dob),
-      CourseCategory: enq.Course_Category,
-      Course: enq.Course_Name,      
-      Address1: enq.Address1,
-      Address2: enq.Address2,      
-      CityName: enq.CityName,      
-      StateName: enq.StateName,      
-      ZipCode: enq.ZipCode,      
-      GraduationType: enq.GraduationType,
-      CollegeName: enq.CollegeName,
-      DegreeName: enq.DegreeName,
-      HSCPassedOut: enq.HscPassedout,
-      HSCPercentage: enq.HscPer,
-      UGPassedOut: enq.UGPassedOut,
-      UGPercentage: enq.UGPer,
-      PGPassedOut: enq.PGPassedOut,
-      PGPercentage: enq.PGPer,
-      SSLCPassedOut: enq.SslcPassedout,
-      SSLCPercentage: enq.SslcPer,
-      WorkingCompany: enq.WorkingCompany,
-      WorkingIndustry: enq.WorkingIndustry,
-      ReferenceBy: enq.ReferenceBy,
-      ReferenceContactNumber: enq.ReferenceContactNumber,
-      PreferenceDay: enq.PerferenceDay,
-      PreferenceMode: enq.PerferenceMode,
-      PreferenceTiming: enq.PerferenceTiming,
-      AdmissionId: enq.AdmissionId,
-      AdmissionNo: enq.AdmissionNo,
-      CourseId: enq.CourseId,
-      CourseTechnologyId: enq.CourseTechnologyId,
-      DiscountAmount: enq.DiscountAmount,
-      NetAmount: enq.NetAmount,
-      WorkingStatus: enq.WorkingStatus,
-      photo: enq.doc1,
-      pancard: enq.doc2,
-      aadhaar: enq.doc3,
-      collegeID: enq.doc4,      
-      EnquiryDate: formatDate(enq.CreatedDate),      
+      Email: enq.Email,
+      Gender: enq.Gender === 'm' ? 'Male' : 'Female',
+      DOB: formatDateDob(enq.Dob),
+      'Course Category': enq.Course_Category,
+      Course: enq.Course_Name,
+      City: enq.CityName,
+      State: enq.StateName || '',
+      'Graduation Type': enq.GraduationType === 'ug' ? 'UG' : 'PG',
+      'College Name': enq.CollegeName,
+      'Degree/Stream': enq.DegreeName,
+      'UG %': enq.UGPer,
+      'UG Passed Out': enq.UGPassedOut,
+      'PG %': enq.PGPassedOut === 'N/A' ? '' : enq.PGPer,
+      'PG Passed Out': enq.PGPassedOut === 'N/A' ? '' : enq.PGPassedOut,
+      'Preferred Day': enq.PerferenceDay,
+      'Preferred Mode': enq.PerferenceMode,
+      'Preferred Timing': enq.PerferenceTiming,
+      'Referred By': enq.ReferenceBy || '',
+      'Referred Contact Number': enq.ReferenceContactNumber || '',
+      'Course Fee': enq.Course_Fee,
+      Discount: enq.DiscountAmount,
+      'Offered Fee': enq.NetAmount,
+      'Working Status': enq.WorkingStatus === 'n' ? 'No' : 'Yes',
+      'Enquiry ID': enq.EnquiryId,
+      'Enquiry Date': enq.EnquiryDate ? formatDate(enq.EnquiryDate) : '',
     }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Admission');
-    XLSX.writeFile(workbook, `AdmissionData+${currentDate}+.xlsx`);
+    const wb = XLSXS.utils.book_new();
+    const ws = XLSXS.utils.json_to_sheet(data, { origin: 'A8' });
+    const columns = [
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+      'H',
+      'I',
+      'J',
+      'K',
+      'L',
+      'M',
+      'N',
+      'O',
+      'P',
+      'Q',
+      'R',
+      'S',
+      'T',
+      'U',
+      'V',
+      'W',
+      'X',
+      'Y',
+      'Z',
+      'AA',
+      'AB',
+      'AC',
+      'AD',
+      'AE',
+    ];
+
+    const maxColWidths = {};
+    const title = 'ADMISSIONS REPORT';
+
+    // SETTING UP WIDTH DYNAMICALLY
+    data.forEach((row) => {
+      for (const col in row) {
+        if (Object.prototype.hasOwnProperty.call(row, col)) {
+          const cellValue = row[col] ? row[col].toString() : '';
+          maxColWidths[col] = Math.max(maxColWidths[col] || 0, cellValue.length + 15);
+        }
+      }
+    });
+
+    const wscols = Object.keys(maxColWidths).map((col) => ({ wch: maxColWidths[col] }));
+
+    ws['!cols'] = wscols;
+
+    // Merging cells for the title
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 1, c: 30 } }];
+    // Set the title cell's value and styling
+    ws.A1 = {
+      v: title,
+      t: 's',
+      s: {
+        font: { bold: true, sz: 16 },
+        alignment: { horizontal: 'center', vertical: 'center' },
+        fill: { fgColor: { rgb: '88a3ca' } },
+        border: {
+          left: { style: 'thin', color: { rgb: '000000' } },
+          top: { style: 'thin', color: { rgb: '000000' } },
+          right: { style: 'thin', color: { rgb: '000000' } },
+          bottom: { style: 'thin', color: { rgb: '000000' } },
+        },
+      },
+    };
+
+    // ws.C4 = { v: 'Name: ', t: 's', s: { font: { bold: true } } };
+    // ws.D4 = { v: filters.name === '' ? 'ALL Names' : filters.name, t: 's' };
+
+    // ws.E4 = { v: 'Phone: ', t: 's', s: { font: { bold: true } } };
+    // ws.F4 = { v: filters.phoneNumber === '' ? 'ALL' : filters.phoneNumber, t: 's' };
+
+    // ws.G4 = { v: 'Class Mode: ', t: 's', s: { font: { bold: true } } };
+    // ws.H4 = { v: filters.preferredMode === '' ? 'Both' : filters.preferredMode, t: 's' };
+
+    // ws.I4 = { v: 'Enquiry Ref: ', t: 's', s: { font: { bold: true } } };
+    // ws.J4 = { v: filters.hasEnquiryReference === '' ? 'ALL' : filters.hasEnquiryReference, t: 's' };
+
+    // ws.C5 = { v: 'Course Category: ', t: 's', s: { font: { bold: true } } };
+    // ws.D5 = { v: filters.courseCategory === '' ? 'ALL' : filters.courseCategory, t: 's' };
+
+    // ws.E5 = { v: 'Course: ', t: 's', s: { font: { bold: true } } };
+    // ws.F5 = { v: filters.course === '' ? 'ALL' : filters.course, t: 's' };
+
+    // ws.G5 = { v: 'Preferred Days: ', t: 's', s: { font: { bold: true } } };
+    // ws.H5 = { v: filters.preferredDays === '' ? 'All Days' : filters.preferredDays, t: 's' };
+
+    // ws.I5 = { v: 'Working: ', t: 's', s: { font: { bold: true } } };
+    // ws.J5 = { v: filters.working === '' ? 'ALL' : filters.working, t: 's' };
+
+    // ws.C6 = { v: 'From Date: ', t: 's', s: { font: { bold: true } } };
+    // ws.D6 = { v: formatDateDob(filters.fromDate), t: 's' };
+
+    // ws.E6 = { v: 'To Date: ', t: 's', s: { font: { bold: true } } };
+    // ws.F6 = { v: formatDateDob(filters.toDate), t: 's' };
+
+    // ws.G6 = { v: 'Admisison Type: ', t: 's', s: { font: { bold: true } } };
+    // ws.H6 = { v: filters.isReferred === '' ? 'Both' : filters.isReferred, t: 's' };
+
+    // headers row styling
+    const headerRowIndex = '8';
+    columns.forEach((col) => {
+      const cell = `${col}${headerRowIndex}`;
+      // console.log("cell",cell );
+      ws[cell].s = {
+        fill: { fgColor: { rgb: '88b0ca' } },
+        alignment: { horizontal: 'center' },
+        font: { bold: true, sz: 12 },
+        border: {
+          left: { style: 'thin', color: { rgb: 'black' } },
+          top: { style: 'thin', color: { rgb: 'black' } },
+          right: { style: 'thin', color: { rgb: 'black' } },
+          bottom: { style: 'thin', color: { rgb: 'black' } },
+        },
+      };
+    });
+
+    // excel table contents
+    const CellStyle = {
+      alignment: { horizontal: 'center' },
+      border: {
+        left: { style: 'thin', color: { rgb: 'black' } },
+        top: { style: 'thin', color: { rgb: 'black' } },
+        right: { style: 'thin', color: { rgb: 'black' } },
+        bottom: { style: 'thin', color: { rgb: 'black' } },
+      },
+    };
+    for (let i = 1; i <= data.length; i += 1) {
+      const rowNumber = i + 8;
+     columns.forEach((col) => {
+        const cell = `${col}${rowNumber}`;
+        ws[cell].s = CellStyle;
+      });
+    }
+
+    XLSXS.utils.book_append_sheet(wb, ws, 'Admissions Data');
+    XLSXS.writeFile(wb, `Admissions Data ${formatDateToinitialValues(new Date())}.xlsx`);
   };
+
+  // const handleDownloadExcel = () => {
+  //   // console.log(filteredData);
+  //   const data = filteredData.map((enq) => ({
+  //     ID: enq.AdmissionId,
+  //     FullName: `${enq.FirstName} ${enq.LastName}`,
+  //     Phone: enq.PhoneNumber,
+  //     Email: enq.Email,         
+  //     Gender: enq.Gender,   
+  //     DOB: formatDate(enq.Dob),
+  //     CourseCategory: enq.Course_Category,
+  //     Course: enq.Course_Name,      
+  //     Address1: enq.Address1,
+  //     Address2: enq.Address2,      
+  //     CityName: enq.CityName,      
+  //     StateName: enq.StateName,      
+  //     ZipCode: enq.ZipCode,      
+  //     GraduationType: enq.GraduationType,
+  //     CollegeName: enq.CollegeName,
+  //     DegreeName: enq.DegreeName,
+  //     HSCPassedOut: enq.HscPassedout,
+  //     HSCPercentage: enq.HscPer,
+  //     UGPassedOut: enq.UGPassedOut,
+  //     UGPercentage: enq.UGPer,
+  //     PGPassedOut: enq.PGPassedOut,
+  //     PGPercentage: enq.PGPer,
+  //     SSLCPassedOut: enq.SslcPassedout,
+  //     SSLCPercentage: enq.SslcPer,
+  //     WorkingCompany: enq.WorkingCompany,
+  //     WorkingIndustry: enq.WorkingIndustry,
+  //     ReferenceBy: enq.ReferenceBy,
+  //     ReferenceContactNumber: enq.ReferenceContactNumber,
+  //     PreferenceDay: enq.PerferenceDay,
+  //     PreferenceMode: enq.PerferenceMode,
+  //     PreferenceTiming: enq.PerferenceTiming,
+  //     AdmissionId: enq.AdmissionId,
+  //     AdmissionNo: enq.AdmissionNo,
+  //     CourseId: enq.CourseId,
+  //     CourseTechnologyId: enq.CourseTechnologyId,
+  //     DiscountAmount: enq.DiscountAmount,
+  //     NetAmount: enq.NetAmount,
+  //     WorkingStatus: enq.WorkingStatus,
+  //     photo: enq.doc1,
+  //     pancard: enq.doc2,
+  //     aadhaar: enq.doc3,
+  //     collegeID: enq.doc4,      
+  //     EnquiryDate: formatDate(enq.CreatedDate),      
+  //   }));
+
+  //   const worksheet = XLSX.utils.json_to_sheet(data);
+  //   const workbook = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Admission');
+  //   XLSX.writeFile(workbook, `AdmissionData+${currentDate}+.xlsx`);
+  // };
 
   // search & filter
   const filteredData = AdmissionData.filter((enq) => {
