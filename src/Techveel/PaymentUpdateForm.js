@@ -651,18 +651,18 @@ const PaymentUpdateForm = () => {
             rows={4}
             value={remarks}
             onChange={(e) => {
-              setRemarks(e.target.value);
-
+              const newRemarks = e.target.value;
+              setRemarks(newRemarks);
+            
               setFieldErrors((prevFieldErrors) => ({
                 ...prevFieldErrors,
-                remarks: !remarks,
+                remarks: !newRemarks,
               }));
             }}
             sx={{ my: 2 }}
             error={fieldErrors.remarks}
             helperText={fieldErrors.remarks && 'Please provide remarks for this payment'}
           />
-
           <Button
             fullWidth
             type="submit"
