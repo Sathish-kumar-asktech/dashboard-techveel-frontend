@@ -270,6 +270,7 @@ const EnquiriesReports = () => {
 
     // Merging cells for the title
     ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 1, c: 23 } }];
+    
     // Set the title cell's value and styling
     ws.A1 = {
       v: title,

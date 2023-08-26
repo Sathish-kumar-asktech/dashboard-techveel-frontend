@@ -151,7 +151,7 @@ export default function AdmissionForm() {
   const [newCollegeIDPreviewFileState, setNewCollegeIDPreviewFileState] = useState('');
 
   const [openPreview, setOpenPreview] = useState(false);
-  const [discount, setDiscount] = React.useState(undefined);
+  const [discount, setDiscount] = React.useState('');
   const [finalFee, setFinalFee] = React.useState('');
   const [selectedPreviewFile, setSelectedPreviewFile] = useState(null);
 
@@ -677,7 +677,7 @@ export default function AdmissionForm() {
 
   // post Request to Add new record
   const addNewAdmission = async (Admissiondata) => {
-    setOpenLoader(true);
+    // setOpenLoader(true);
     // console.log(Admissiondata, 'Admissiondata');
     try {
       const res = await axios.instance.post('/InsertAdmission', Admissiondata, {
@@ -690,13 +690,21 @@ export default function AdmissionForm() {
       // console.log(res);
 
       if (res.data && res.data.length > 0 && res.data[0].AdmissionId !== undefined) {
+        
         setAlertType('success');
         setAlertMessage('Admission Done, Successfully!');
         setopenAlert(true);
-        setOpenLoader(false);
+        resetFields();
         setTimeout(() => {
-          navigate('/dashboard/manage_admission');
-        }, 4000);
+          setopenAlert(false); 
+          setOpenLoader(false); 
+          navigate('/dashboard/manage_admission'); // Redirect
+        }, 2000);
+        // setOpenLoader(false);
+        // setTimeout(() => {
+        //   navigate('/dashboard/manage_admission');
+        // }, 4000);
+
       } else if (
         res.data ===
         'Error 50001, severity 16, state 3 was raised, but no message with that error number was found in sys.messages. If error is larger than 50000, make sure the user-defined message is added using sp_addmessage.'
@@ -869,9 +877,9 @@ export default function AdmissionForm() {
       return;
     }
 
-    if (activeStep === 3 && !validateAttachments()) {
-      return;
-    }
+    // if (activeStep === 3 && !validateAttachments()) {
+    //   return;
+    // }
 
     if (activeStep === 4 && !validateOthers()) {
       return;
@@ -901,66 +909,10 @@ export default function AdmissionForm() {
     setActiveStep(0);
   };
 
-  // const handleFormSubmit = () => {
-  //   if (activeStep === 4 && !validateOthers()) {
-  //     return;
-  //   }
-  //   const formData = new FormData();
-  //   formData.append('AdmissionId', id);
-  //   formData.append('FirstName', firstName);
-  //   formData.append('LastName', lastName);
-  //   formData.append('FatherName', fatherName);
-  //   formData.append('Dob', dob);
-  //   formData.append('PhoneNumber', contactNumber);
-  //   formData.append('Email', email);
-  //   formData.append('Gender', gender);
-  //   formData.append('GraduationType', educationLevel);
-  //   formData.append('Address1', address1);
-  //   formData.append('Address2', address2);
-  //   formData.append('CityId', city.CityId);
-  //   formData.append('StateId', state.StateId);
-  //   formData.append('ZipCode', pinCode);
-  //   formData.append('doc1', selectedFilePhoto);
-  //   formData.append('doc2', selectedFilePan);
-  //   formData.append('doc3', selectedFileAadhaar);
-  //   formData.append('doc4', selectedFileCollegeID);
-  //   formData.append('DegreeId', degree.DegreeId);
-  //   formData.append('CollegeId', collegeName.CollegeId);
-  //   formData.append('PerferenceMode', preferredMode);
-  //   formData.append('PerferenceDay', preferredDays);
-  //   formData.append('PerferenceTiming', preferredTimings);
-  //   formData.append('CourseId', prefCourseCategory.CourseCategoryId);
-  //   formData.append('CourseTechnologyId', prefTechnology.CourseId);
-  //   formData.append('SslcPer', sslcMarks);
-  //   formData.append('SslcPassedout', sslcYear);
-  //   formData.append('HscPer', hscMarks);
-  //   formData.append('HscPassedout', hscYear);
-  //   formData.append('UGPer', ugMarks);
-  //   formData.append('UGPassedOut', ugYear);
-  //   formData.append('PGPer', pgMarks.length !== 0 ? pgMarks : 0);
-  //   formData.append('PGPassedOut', !pgYear ? 'N/A' : pgYear);
-  //   formData.append('WorkingStatus', working);
-  //   formData.append('WorkingIndustry', industry);
-  //   formData.append('WorkingCompany', companyName);
-  //   formData.append('ReferenceBy', refereedByName);
-  //   formData.append('ReferenceContactNumber', refereedByContact);
-  //   formData.append('DiscountAmount', discount);
-  //   formData.append('NetAmount', finalFee);
-  //   formData.append(!id ? 'CreatedBy' : 'Modifyby', 86);
-  //   if (!id) {
-  //     addNewAdmission(formData);
-  //   } else {
-  //     UpdateAdmission(id, formData);
-  //   }
-  // };
-
   const handleFormSubmit = () => {
+    setOpenLoader(true)
     if (activeStep === 4 && !validateOthers()) {
       return;
-    }
-    if(discount === '')
-    {
-      setDiscount(0);
     }
     const formData = new FormData();
     if (id) {
@@ -1003,7 +955,7 @@ export default function AdmissionForm() {
     formData.append('WorkingCompany', companyName);
     formData.append('ReferenceBy', refereedByName);
     formData.append('ReferenceContactNumber', refereedByContact);
-    formData.append('DiscountAmount', discount);
+    formData.append('DiscountAmount', discount.length !== 0 ? discount : 0);
     formData.append('NetAmount', finalFee);
     formData.append(!id ? 'CreatedBy' : 'Modifyby', 86);
     formData.append('EnquiryId', alreadyEnquired === 'y' ? selectedEnquiryID.EnquiryId : 0);

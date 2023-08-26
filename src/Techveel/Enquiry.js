@@ -119,6 +119,38 @@ export default function Enquiry() {
     setopenAlert(false);
   };
 
+  const resetFields = () => {
+    setFirstName('');
+    setLastName('');
+    setFatherName('');
+    setCity(null);
+    setDob('');
+    setContactNumber('');
+    setEmail('');
+    setGender('');
+    setEducationLevel('');
+    setDegree(null);
+    setCollegeName(null);
+    setPreferredMode('');
+    setPreferredDays([]);
+    setPreferredTimings([]);
+    setPrefCourseCategory(null);
+    setPrefTechnology(null);
+    setSSLCMarks('');
+    setSSLCYear('');
+    setHSCMarks('');
+    setHSCYear('');
+    setUGMarks('');
+    setUGYear('');
+    setPGMarks('');
+    setPGYear('');
+    setWorking('');
+    setIndustry('');
+    setCompanyName('');
+    setRefereedByName('');
+    setRefereedByContact('');
+  };
+
   const [fieldErrors, setFieldErrors] = React.useState({
     // basic info step
     firstName: false,
@@ -309,13 +341,11 @@ export default function Enquiry() {
           setIndustry(WorkingIndustry);
           setCompanyName(WorkingCompany);
           setRefereedByName(ReferenceBy);
-          if(!ReferenceContactNumber)
-          {
-            setAreYouReferred('n')
+          if (!ReferenceContactNumber) {
+            setAreYouReferred('n');
+          } else {
+            setAreYouReferred('y');
           }
-          else{
-            setAreYouReferred('y')
-          }      
           setRefereedByName(ReferenceBy);
           setRefereedByContact(ReferenceContactNumber);
           // Set other properties using their respective set functions
@@ -335,44 +365,85 @@ export default function Enquiry() {
   }, [id, cityData, collegeData, courseData, categoryData, degreeData]);
 
   // post Request to Add new record
-  const addNewEnquiry = async (Enquirydata) => {
-    setOpenLoader(true);
-    try {
-      const res = await axios.instance.post('/InsertEnquiry', Enquirydata, {
+  const addNewEnquiry = (Enquirydata) => {
+    // setOpenLoader(true); // Set loader to true initially
+    axios.instance
+      .post('/InsertEnquiry', Enquirydata, {
         headers: { Authorization: tokent, 'Content-Type': 'application/json' },
-      });
-      if (res.data && res.data.length > 0 && res.data[0].EnquiryId !== undefined) {
-        setAlertType('success');
-        setAlertMessage('New Enquiry Done, Successfully!');
-        setopenAlert(true);
+      })
+      .then((res) => {
+        if (res.data && res.data.length > 0 && res.data[0].EnquiryId !== undefined) {
+          setAlertType('success');
+          setAlertMessage('New Enquiry Done, Successfully!');
+          setopenAlert(true);  
+          resetFields();
+          // Wait for a short delay for the user to see the success message
+          setTimeout(() => {
+            setopenAlert(false); // Hide the alert
+            setOpenLoader(false); // Set loader to false
+            navigate('/dashboard/manage_enquiry'); // Redirect
+          }, 2000);           
+        } else if (
+          res.data ===
+          'Error 50001, severity 16, state 3 was raised, but no message with that error number was found in sys.messages. If error is larger than 50000, make sure the user-defined message is added using sp_addmessage.'
+        ) {
+          setAlertType('warning');
+          setAlertMessage('Phone or email are already in use. Please provide new information.');
+          setopenAlert(true);
+        } else {
+          setAlertType('error');
+          setAlertMessage("Oops! Can't add this data...");
+          setopenAlert(true);
+        }
         setOpenLoader(false);
-        setTimeout(() => {
-          navigate('/dashboard/manage_enquiry'); // Redirect to the desired path
-        }, 4000);
-      } else if (
-        res.data ===
-        'Error 50001, severity 16, state 3 was raised, but no message with that error number was found in sys.messages. If error is larger than 50000, make sure the user-defined message is added using sp_addmessage.'
-      ) {
-        setAlertType('warning');
-        setAlertMessage('Phone or email are already in use. Please provide new information.');
-        setopenAlert(true);
-        setOpenLoader(false);
-      } else {
+      })
+      .catch((error) => {
+        console.error('Error adding new Enquiry:', error);
         setAlertType('error');
-        setAlertMessage("Oops! Can't add this data...");
-        setopenAlert(true);
-        setOpenLoader(false);
-      }
-    } catch (error) {
-      console.error('Error adding new Enquiry:', error);
-      setAlertType('error');
-      setAlertMessage('Failed to add the new Enquiry.');
-      setOpenLoader(false);
-      setopenAlert(true);
-    }
+        setAlertMessage('Failed to add the new Enquiry.');
+        setOpenLoader(false); // Set loader to false in case of error
+      });
   };
 
+  // const addNewEnquiry = async (Enquirydata) => {
+  //   // setOpenLoader(true);
+  //   try {
+  //     const res = await axios.instance.post('/InsertEnquiry', Enquirydata, {
+  //       headers: { Authorization: tokent, 'Content-Type': 'application/json' },
+  //     });
+  //     if (res.data && res.data.length > 0 && res.data[0].EnquiryId !== undefined) {
+  //       setAlertType('success');
+  //       setAlertMessage('New Enquiry Done, Successfully!');
+  //       setopenAlert(true);
+  //       setOpenLoader(false);
+  //       setTimeout(() => {
+  //         navigate('/dashboard/manage_enquiry'); // Redirect to the desired path
+  //       }, 4000);
+  //     } else if (
+  //       res.data ===
+  //       'Error 50001, severity 16, state 3 was raised, but no message with that error number was found in sys.messages. If error is larger than 50000, make sure the user-defined message is added using sp_addmessage.'
+  //     ) {
+  //       setAlertType('warning');
+  //       setAlertMessage('Phone or email are already in use. Please provide new information.');
+  //       setopenAlert(true);
+  //       setOpenLoader(false);
+  //     } else {
+  //       setAlertType('error');
+  //       setAlertMessage("Oops! Can't add this data...");
+  //       setopenAlert(true);
+  //       setOpenLoader(false);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error adding new Enquiry:', error);
+  //     setAlertType('error');
+  //     setAlertMessage('Failed to add the new Enquiry.');
+  //     setOpenLoader(false);
+  //     setopenAlert(true);
+  //   }
+  // };
+
   // put Request to edit record
+ 
   const UpdateEnquiry = async (id, Enquirydata) => {
     setOpenLoader(true);
     try {
@@ -533,6 +604,7 @@ export default function Enquiry() {
   };
 
   const handleFormSubmit = () => {
+    setOpenLoader(true);
     if (activeStep === 2 && !validateOthers()) {
       // Show validation errors for Others step
       return;
@@ -1390,40 +1462,40 @@ export default function Enquiry() {
                             </>
                           )}
                           {areYouReferred === 'y' && (
-                          <Stack direction={{ md: 'row', xs: 'column' }} spacing={3} my={1}>
-                            <TextField
-                              size="small"
-                              fullWidth
-                              label="Referred By Name"
-                              value={refereedByName}
-                              onChange={(e) => {
-                                setRefereedByName(e.target.value);
-                                setFieldErrors((prevFieldErrors) => ({
-                                  ...prevFieldErrors,
-                                  refereedByName: !nameRegex.test(e.target.value),
-                                }));
-                              }}
-                              error={fieldErrors.refereedByName}
-                              helperText={fieldErrors.refereedByName && 'Enter valid name'}
-                            />
-                            <TextField
-                              size="small"
-                              type="number"
-                              fullWidth
-                              label="Referred By Contact Number"
-                              value={refereedByContact}
-                              onChange={(e) => {
-                                setRefereedByContact(e.target.value);
-                                setFieldErrors((prevFieldErrors) => ({
-                                  ...prevFieldErrors,
-                                  refereedByContact: !contactRegex.test(e.target.value),
-                                }));
-                              }}
-                              error={fieldErrors.refereedByContact}
-                              helperText={fieldErrors.refereedByContact && 'Enter 10 digit mobile number'}
-                            />
-                          </Stack>
-                        )}
+                            <Stack direction={{ md: 'row', xs: 'column' }} spacing={3} my={1}>
+                              <TextField
+                                size="small"
+                                fullWidth
+                                label="Referred By Name"
+                                value={refereedByName}
+                                onChange={(e) => {
+                                  setRefereedByName(e.target.value);
+                                  setFieldErrors((prevFieldErrors) => ({
+                                    ...prevFieldErrors,
+                                    refereedByName: !nameRegex.test(e.target.value),
+                                  }));
+                                }}
+                                error={fieldErrors.refereedByName}
+                                helperText={fieldErrors.refereedByName && 'Enter valid name'}
+                              />
+                              <TextField
+                                size="small"
+                                type="number"
+                                fullWidth
+                                label="Referred By Contact Number"
+                                value={refereedByContact}
+                                onChange={(e) => {
+                                  setRefereedByContact(e.target.value);
+                                  setFieldErrors((prevFieldErrors) => ({
+                                    ...prevFieldErrors,
+                                    refereedByContact: !contactRegex.test(e.target.value),
+                                  }));
+                                }}
+                                error={fieldErrors.refereedByContact}
+                                helperText={fieldErrors.refereedByContact && 'Enter 10 digit mobile number'}
+                              />
+                            </Stack>
+                          )}
                           {/* <Typography variant="h6" color="#0288d1">
                             Reference Details(optional):
                           </Typography>

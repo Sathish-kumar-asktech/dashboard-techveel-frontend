@@ -157,7 +157,7 @@ export default function Nav({ openNav, onCloseNav }) {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion disableGutters sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit' }}>
+      {/* <Accordion disableGutters sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit' }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -213,7 +213,8 @@ export default function Nav({ openNav, onCloseNav }) {
         <AccordionDetails sx={{ borderTop: 'none' }}>
           <NavSection data={FormsList} />
         </AccordionDetails>
-      </Accordion>
+      </Accordion> */}
+
       <Accordion disableGutters sx={{ borderTop: 'none', borderColor: 'inherit', backgroundColor: 'inherit' }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}

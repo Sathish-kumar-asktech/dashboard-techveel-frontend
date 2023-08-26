@@ -159,6 +159,40 @@ export default function AdmissionForm() {
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB (adjust as needed)
   const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 
+  const resetFields = () => {
+    setFirstName('');
+    setLastName('');
+    setFatherName('');
+    setCity(null);
+    setState(null);
+    setDob('');
+    setContactNumber('');
+    setEmail('');
+    setGender('');
+    setEducationLevel('');
+    setDegree(null);
+    setCollegeName(null);
+    setPreferredMode('');
+    setPreferredDays([]);
+    setPreferredTimings([]);
+    setPrefCourseCategory(null);
+    setPrefTechnology(null);
+    setSSLCMarks('');
+    setSSLCYear('');
+    setHSCMarks('');
+    setHSCYear('');
+    setUGMarks('');
+    setUGYear('');
+    setPGMarks('');
+    setPGYear('');
+    setWorking('');
+    setIndustry('');
+    setCompanyName('');
+    setRefereedByName('');
+    setRefereedByContact('');
+    setFinalFee('');
+  };
+
   const handleFileChange = (event, fileType) => {
     const file = event.target.files[0];
 
@@ -653,7 +687,7 @@ export default function AdmissionForm() {
 
   // post Request to Add new record
   const addNewAdmission = async (Admissiondata) => {
-    setOpenLoader(true);
+    // setOpenLoader(true);
     // console.log(Admissiondata, 'Admissiondata');
     try {
       const res = await axios.instance.post('/InsertAdmission', Admissiondata, {
@@ -669,10 +703,16 @@ export default function AdmissionForm() {
         setAlertType('success');
         setAlertMessage('Admission Done, Successfully!');
         setopenAlert(true);
-        setOpenLoader(false);
+        resetFields();
         setTimeout(() => {
-          navigate('/dashboard/manage_admission');
-        }, 4000);
+          setopenAlert(false); 
+          setOpenLoader(false); 
+          navigate('/dashboard/manage_admission'); // Redirect
+        }, 2000);    
+        // setOpenLoader(false);
+        // setTimeout(() => {
+        //   navigate('/dashboard/manage_admission');
+        // }, 4000);
       } else if (
         res.data ===
         'Error 50001, severity 16, state 3 was raised, but no message with that error number was found in sys.messages. If error is larger than 50000, make sure the user-defined message is added using sp_addmessage.'
@@ -877,6 +917,7 @@ export default function AdmissionForm() {
     setActiveStep(0);
   };
   const handleFormSubmit = () => {
+    setOpenLoader(true);
     if (activeStep === 4 && !validateOthers()) {
       return;
     }
@@ -919,7 +960,8 @@ export default function AdmissionForm() {
     formData.append('WorkingCompany', companyName);
     formData.append('ReferenceBy', refereedByName);
     formData.append('ReferenceContactNumber', refereedByContact);
-    formData.append('DiscountAmount', discount);
+    formData.append('DiscountAmount', discount.length !== 0 ? discount : 0);
+    // formData.append('DiscountAmount', discount);
     formData.append('NetAmount', finalFee);
     formData.append(!id ? 'CreatedBy' : 'Modifyby', 86);
     if (!id) {
